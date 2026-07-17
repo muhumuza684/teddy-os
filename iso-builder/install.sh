@@ -1,0 +1,274 @@
+#!/bin/bash
+# =================================================================
+#  TEDDY OS — Hard Drive Installer v1.0
+#  Run from inside the live Tedyt OS session
+#  Built by Bryt Ma Tech Uganda
+# =================================================================
+set -euo pipefail
+
+R='\033[0;31m' G='\033[0;32m' Y='\033[1;33m'
+C='\033[0;36m' B='\033[1m' N='\033[0m'
+
+step()    { echo -e "\n${B}${C}━━━ $1 ${N}"; }
+ok()      { echo -e "  ${G}✓${N} $1"; }
+warn()    { echo -e "  ${Y}⚠${N}  $1"; }
+fail()    { echo -e "  ${R}✗${N} $1"; exit 1; }
+progress(){ echo -e "  ${C}→${N} $1"; }
+
+[[ $EUID -ne 0 ]] && fail "Run as root: sudo bash install.sh"
+
+clear
+echo -e "${B}${C}"
+cat << 'EOF'
+  ████████╗███████╗██████╗ ██████╗ ██╗   ██╗      ██████╗ ███████╗
+     ██╔══╝██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝     ██╔═══██╗██╔════╝
+     ██║   █████╗  ██║  ██║██║  ██║ ╚████╔╝      ██║   ██║███████╗
+     ██║   ██╔══╝  ██║  ██║██║  ██║  ╚██╔╝       ██║   ██║╚════██║
+     ██║   ███████╗██████╔╝██████╔╝   ██║        ╚██████╔╝███████║
+     ╚═╝   ╚══════╝╚═════╝ ╚═════╝    ╚═╝         ╚═════╝ ╚══════╝
+EOF
+echo -e "${N}"
+echo -e "  ${C}Teddy OS Installer v1.0${N}"
+echo -e "  ${Y}Built by Bryt Ma Tech Uganda${N}"
+echo ""
+echo -e "  ${R}${B}WARNING: This will erase the selected disk completely!${N}"
+echo ""
+
+# ── Select disk ───────────────────────────────────────────────
+step "Available storage devices"
+echo ""
+lsblk -d -o NAME,SIZE,MODEL,TYPE,TRAN | grep -v loop
+echo ""
+
+read -rp "  Enter disk to install on (e.g. sda, nvme0n1): " RAW_DISK
+DISK="/dev/$RAW_DISK"
+[[ ! -b "$DISK" ]] && fail "Disk $DISK not found. Check spelling."
+
+DISK_SIZE=$(lsblk -d -o SIZE "$DISK" | tail -1 | tr -d ' ')
+echo ""
+warn "TARGET DISK : $DISK ($DISK_SIZE)"
+warn "ALL DATA WILL BE PERMANENTLY ERASED"
+echo ""
+read -rp "  Type ERASE to confirm: " CONFIRM
+[[ "$CONFIRM" != "ERASE" ]] && { echo "Aborted."; exit 0; }
+
+# ── UEFI or BIOS ──────────────────────────────────────────────
+step "Detecting boot mode"
+if [ -d /sys/firmware/efi ]; then
+    MODE="uefi"
+    ok "UEFI mode detected"
+else
+    MODE="bios"
+    ok "Legacy BIOS mode detected"
+fi
+
+# ── Partition naming helper ────────────────────────────────────
+part() {
+    if [[ "$DISK" == *"nvme"* ]] || [[ "$DISK" == *"mmcblk"* ]]; then
+        echo "${DISK}p${1}"
+    else
+        echo "${DISK}${1}"
+    fi
+}
+
+# ── Partitioning ──────────────────────────────────────────────
+step "Partitioning $DISK"
+progress "Wiping existing partition table..."
+wipefs -a "$DISK"
+dd if=/dev/zero of="$DISK" bs=1M count=10 2>/dev/null
+
+if [ "$MODE" = "uefi" ]; then
+    progress "Creating GPT partition table (UEFI)..."
+    parted -s "$DISK" \
+        mklabel gpt \
+        mkpart "EFI"  fat32  1MiB    513MiB \
+        set 1 esp on \
+        mkpart "SWAP" linux-swap 513MiB 2561MiB \
+        mkpart "ROOT" ext4  2561MiB 100%
+    EFI_PART=$(part 1)
+    SWAP_PART=$(part 2)
+    ROOT_PART=$(part 3)
+else
+    progress "Creating MBR partition table (BIOS)..."
+    parted -s "$DISK" \
+        mklabel msdos \
+        mkpart primary linux-swap 1MiB    2049MiB \
+        mkpart primary ext4       2049MiB 100% \
+        set 2 boot on
+    SWAP_PART=$(part 1)
+    ROOT_PART=$(part 2)
+fi
+
+# Wait for kernel to register new partitions
+sleep 2
+partprobe "$DISK" 2>/dev/null || true
+sleep 1
+ok "Partitioned"
+
+# ── Format ────────────────────────────────────────────────────
+step "Formatting partitions"
+
+if [ "$MODE" = "uefi" ]; then
+    mkfs.fat -F32 -n "TEDDY_EFI" "$EFI_PART"
+    ok "EFI: $EFI_PART (FAT32)"
+fi
+
+mkswap -L "teddy-swap" "$SWAP_PART"
+ok "Swap: $SWAP_PART"
+
+mkfs.ext4 -L "teddy-root" -F -m 1 "$ROOT_PART"
+ok "Root: $ROOT_PART (ext4)"
+
+# ── Mount ─────────────────────────────────────────────────────
+step "Mounting target"
+MOUNT="/mnt/teddy"
+mkdir -p "$MOUNT"
+mount "$ROOT_PART" "$MOUNT"
+
+if [ "$MODE" = "uefi" ]; then
+    mkdir -p "$MOUNT/boot/efi"
+    mount "$EFI_PART" "$MOUNT/boot/efi"
+fi
+
+swapon "$SWAP_PART"
+ok "Mounted at $MOUNT"
+
+# ── Copy system ───────────────────────────────────────────────
+step "Installing Teddy OS (this takes 5-20 minutes)"
+progress "Copying files to $ROOT_PART..."
+
+rsync -aAXH \
+    --info=progress2 \
+    --exclude=/proc \
+    --exclude=/sys \
+    --exclude=/dev \
+    --exclude=/run \
+    --exclude=/mnt \
+    --exclude=/media \
+    --exclude=/tmp \
+    --exclude=/lost+found \
+    --exclude=/live \
+    --exclude=/cdrom \
+    / "$MOUNT/"
+
+ok "Files copied"
+
+# ── Essential dirs ────────────────────────────────────────────
+mkdir -p "$MOUNT"/{proc,sys,dev,run,tmp,mnt,media,cdrom}
+chmod 1777 "$MOUNT/tmp"
+
+# ── fstab ─────────────────────────────────────────────────────
+step "Writing system configuration"
+
+ROOT_UUID=$(blkid -s UUID -o value "$ROOT_PART")
+SWAP_UUID=$(blkid -s UUID -o value "$SWAP_PART")
+
+cat > "$MOUNT/etc/fstab" << FSTAB
+# /etc/fstab — Teddy OS
+# Generated by Teddy OS Installer
+# Built by Bryt Ma Tech Uganda
+#
+# <device>      <mount>    <type>  <options>           <dump>  <fsck>
+UUID=$ROOT_UUID /          ext4    errors=remount-ro   0       1
+UUID=$SWAP_UUID none       swap    sw                  0       0
+tmpfs           /tmp       tmpfs   defaults,nosuid     0       0
+FSTAB
+
+if [ "$MODE" = "uefi" ]; then
+    EFI_UUID=$(blkid -s UUID -o value "$EFI_PART")
+    echo "UUID=$EFI_UUID  /boot/efi  vfat  umask=0077  0  2" >> "$MOUNT/etc/fstab"
+fi
+ok "fstab written"
+
+# ── Chroot setup ──────────────────────────────────────────────
+step "Configuring bootloader"
+
+# Bind mounts for chroot
+for fs in dev dev/pts proc sys run; do
+    mount --bind "/$fs" "$MOUNT/$fs" 2>/dev/null || true
+done
+
+cleanup_chroot() {
+    for fs in dev/pts dev proc sys run; do
+        umount -lf "$MOUNT/$fs" 2>/dev/null || true
+    done
+}
+trap cleanup_chroot EXIT
+
+# Remove live-boot, install grub
+chroot "$MOUNT" bash -c "
+    export DEBIAN_FRONTEND=noninteractive
+    # Remove live-boot packages
+    apt-get remove -y --purge live-boot live-boot-initramfs-tools live-config 2>/dev/null || true
+
+    # Update initramfs for real hardware
+    update-initramfs -u -k all
+
+    # Write GRUB defaults
+    cat > /etc/default/grub << 'GRUBDEF'
+GRUB_DEFAULT=0
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR=\"Teddy OS\"
+GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"
+GRUB_CMDLINE_LINUX=\"\"
+GRUB_GFXMODE=\"1920x1080,1366x768,auto\"
+GRUB_GFXPAYLOAD_LINUX=keep
+GRUB_BACKGROUND=\"/usr/share/backgrounds/teddy-os/default.svg\"
+GRUBDEF
+
+    # Install GRUB
+    if [ -d /sys/firmware/efi ]; then
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=TeddyOS --recheck
+    else
+        grub-install --target=i386-pc --recheck $DISK
+    fi
+
+    update-grub
+
+    # Remove autologin for installed system (require password)
+    cat > /etc/lightdm/lightdm.conf << 'LDM'
+[LightDM]
+run-directory=/run/lightdm
+minimum-vt=7
+
+[Seat:*]
+user-session=openbox
+greeter-session=lightdm-gtk-greeter
+xserver-command=X -nolisten tcp -dpi 96
+LDM
+"
+
+ok "Bootloader installed"
+
+# ── Unmount ───────────────────────────────────────────────────
+step "Finalizing"
+cleanup_chroot
+trap - EXIT
+
+if [ "$MODE" = "uefi" ]; then
+    umount "$MOUNT/boot/efi"
+fi
+umount "$MOUNT"
+swapoff "$SWAP_PART"
+
+# ── Done ──────────────────────────────────────────────────────
+echo ""
+echo -e "${B}${G}"
+echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  🐻  TEDDY OS INSTALLED SUCCESSFULLY!"
+echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "${N}"
+echo "  Installed to : $DISK"
+echo "  Boot mode    : $MODE"
+echo "  Root         : $ROOT_PART"
+echo ""
+echo "  Default login: teddy / teddy"
+echo "  Change it!   : passwd (after first login)"
+echo ""
+echo "  ─── Next steps ──────────────────────────────"
+echo "  1. Remove the USB drive"
+echo "  2. sudo reboot"
+echo "  3. Boot into Teddy OS from your hard drive"
+echo ""
+echo -e "  ${Y}Built by Bryt Ma Tech Uganda${N}"
+echo ""

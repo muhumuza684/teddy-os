@@ -1,0 +1,15 @@
+{
+  "short_name": "Teddy OS",
+  "name": "Teddy OS — Bryt Ma Tech Uganda",
+  "description": "A lightweight AI-powered operating system built in Uganda",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#0f0c1a",
+  "background_color": "#0f0c1a",
+  "categories": ["productivity", "utilities"]
+}
