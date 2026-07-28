@@ -334,6 +334,7 @@ apt-get install -y --no-install-recommends \
     xfce4-power-manager 2>/dev/null || true
 
 # â”€â”€ Locale & timezone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+apt-get install -y --no-install-recommends locales
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
