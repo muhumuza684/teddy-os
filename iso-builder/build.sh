@@ -1,6 +1,6 @@
-#!/bin/bash
+﻿#!/bin/bash
 # =================================================================
-#  TEDDY OS — ISO Build System v1.0
+#  TEDDY OS â€” ISO Build System v1.0
 #  Built by Bryt Ma Tech Uganda
 #
 #  Run on Ubuntu 22.04 or 24.04 (x86_64) with sudo
@@ -8,7 +8,7 @@
 # =================================================================
 set -euo pipefail
 
-# ── Config ────────────────────────────────────────────────────
+# â”€â”€ Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 TEDDY_VERSION="1.0.0"
 TEDDY_CODENAME="Kampala"
 TEDDY_ARCH="amd64"
@@ -20,33 +20,33 @@ ROOTFS="$WORK/rootfs"
 ISO="$WORK/iso"
 OUTPUT="$(pwd)/teddyos-${TEDDY_VERSION}-x86_64.iso"
 
-# ── Colors ────────────────────────────────────────────────────
+# â”€â”€ Colors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 R='\033[0;31m' G='\033[0;32m' Y='\033[1;33m'
 C='\033[0;36m' B='\033[1m' N='\033[0m'
 
-step()    { echo -e "\n${B}${C}━━━ $1 ${N}"; }
-ok()      { echo -e "  ${G}✓${N} $1"; }
-warn()    { echo -e "  ${Y}⚠${N}  $1"; }
-fail()    { echo -e "  ${R}✗${N} $1"; exit 1; }
-progress(){ echo -e "  ${C}→${N} $1"; }
+step()    { echo -e "\n${B}${C}â”â”â” $1 ${N}"; }
+ok()      { echo -e "  ${G}âœ“${N} $1"; }
+warn()    { echo -e "  ${Y}âš ${N}  $1"; }
+fail()    { echo -e "  ${R}âœ—${N} $1"; exit 1; }
+progress(){ echo -e "  ${C}â†’${N} $1"; }
 
-# ── Banner ────────────────────────────────────────────────────
-clear
+# â”€â”€ Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+clear 2>/dev/null || true
 echo -e "${B}${C}"
 cat << 'EOF'
-  ████████╗███████╗██████╗ ██████╗ ██╗   ██╗      ██████╗ ███████╗
-     ██╔══╝██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝     ██╔═══██╗██╔════╝
-     ██║   █████╗  ██║  ██║██║  ██║ ╚████╔╝      ██║   ██║███████╗
-     ██║   ██╔══╝  ██║  ██║██║  ██║  ╚██╔╝       ██║   ██║╚════██║
-     ██║   ███████╗██████╔╝██████╔╝   ██║        ╚██████╔╝███████║
-     ╚═╝   ╚══════╝╚═════╝ ╚═════╝    ╚═╝         ╚═════╝ ╚══════╝
+  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—      â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—
+     â–ˆâ–ˆâ•”â•â•â•â–ˆâ–ˆâ•”â•â•â•â•â•â–ˆâ–ˆâ•”â•â•â–ˆâ–ˆâ•—â–ˆâ–ˆâ•”â•â•â–ˆâ–ˆâ•—â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”â•     â–ˆâ–ˆâ•”â•â•â•â–ˆâ–ˆâ•—â–ˆâ–ˆâ•”â•â•â•â•â•
+     â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—  â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘ â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•      â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—
+     â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•”â•â•â•  â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘  â•šâ–ˆâ–ˆâ•”â•       â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â•šâ•â•â•â•â–ˆâ–ˆâ•‘
+     â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•   â–ˆâ–ˆâ•‘        â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘
+     â•šâ•â•   â•šâ•â•â•â•â•â•â•â•šâ•â•â•â•â•â• â•šâ•â•â•â•â•â•    â•šâ•â•         â•šâ•â•â•â•â•â• â•šâ•â•â•â•â•â•â•
 EOF
 echo -e "${N}"
-echo -e "  ${C}Teddy OS ${TEDDY_VERSION} \"${TEDDY_CODENAME}\" — ISO Builder${N}"
+echo -e "  ${C}Teddy OS ${TEDDY_VERSION} \"${TEDDY_CODENAME}\" â€” ISO Builder${N}"
 echo -e "  ${Y}Built by Bryt Ma Tech Uganda${N}"
 echo ""
 
-# ── Checks ────────────────────────────────────────────────────
+# â”€â”€ Checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Preflight checks"
 [[ $EUID -ne 0 ]]        && fail "Must run as root: sudo bash build.sh"
 [[ $(uname -m) != x86_64 ]] && fail "Requires x86_64 host"
@@ -54,7 +54,7 @@ command -v debootstrap &>/dev/null || apt-get install -y debootstrap
 ok "Running as root"
 ok "Architecture: x86_64"
 
-# ── Dependencies ──────────────────────────────────────────────
+# â”€â”€ Dependencies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Installing build tools"
 apt-get update -qq
 apt-get install -y -qq \
@@ -65,13 +65,13 @@ apt-get install -y -qq \
     whois genisoimage
 ok "Build tools installed"
 
-# ── Clean build dir ───────────────────────────────────────────
+# â”€â”€ Clean build dir â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Preparing build environment"
 rm -rf "$WORK"
 mkdir -p "$ROOTFS" "$ISO"/{live,boot/grub,EFI/boot}
 ok "Build directories created"
 
-# ── Bootstrap ─────────────────────────────────────────────────
+# â”€â”€ Bootstrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Bootstrapping Debian ${DEBIAN_SUITE} base (3-5 min)"
 progress "Downloading base system..."
 debootstrap \
@@ -82,7 +82,7 @@ debootstrap \
     "$DEBIAN_MIRROR"
 ok "Base system ready"
 
-# ── Bind mounts ───────────────────────────────────────────────
+# â”€â”€ Bind mounts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Mounting chroot filesystems"
 for fs in dev dev/pts proc sys run; do
     mount --bind "/$fs" "$ROOTFS/$fs" 2>/dev/null || \
@@ -97,7 +97,7 @@ cleanup_mounts() {
 }
 trap cleanup_mounts EXIT
 
-# ── Write chroot script ───────────────────────────────────────
+# â”€â”€ Write chroot script â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Writing chroot configuration"
 
 cat > "$ROOTFS/teddy-setup.sh" << 'CHROOT_SCRIPT'
@@ -107,9 +107,9 @@ export DEBIAN_FRONTEND=noninteractive
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
-echo "🐻 Teddy OS chroot setup starting..."
+echo "ðŸ» Teddy OS chroot setup starting..."
 
-# ── APT sources ───────────────────────────────────────────────
+# â”€â”€ APT sources â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /etc/apt/sources.list << 'APT'
 deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
 deb http://security.debian.org/debian-security bookworm-security main contrib non-free
@@ -118,7 +118,7 @@ APT
 
 apt-get update -qq
 
-# ── Core system ───────────────────────────────────────────────
+# â”€â”€ Core system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing core system..."
 apt-get install -y --no-install-recommends \
     linux-image-amd64 \
@@ -146,7 +146,7 @@ apt-get install -y --no-install-recommends \
     gnupg \
     lsb-release
 
-# ── Networking ────────────────────────────────────────────────
+# â”€â”€ Networking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing networking..."
 apt-get install -y --no-install-recommends \
     network-manager \
@@ -162,7 +162,7 @@ apt-get install -y --no-install-recommends \
     iputils-ping \
     dnsutils
 
-# ── Display system ────────────────────────────────────────────
+# â”€â”€ Display system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing display system..."
 apt-get install -y --no-install-recommends \
     xorg \
@@ -174,7 +174,7 @@ apt-get install -y --no-install-recommends \
     xinit \
     xauth
 
-# ── GPU drivers ───────────────────────────────────────────────
+# â”€â”€ GPU drivers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing GPU drivers..."
 apt-get install -y --no-install-recommends \
     xserver-xorg-video-intel \
@@ -189,7 +189,7 @@ apt-get install -y --no-install-recommends \
     vainfo \
     intel-media-va-driver-non-free 2>/dev/null || true
 
-# ── Desktop environment ───────────────────────────────────────
+# â”€â”€ Desktop environment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing desktop..."
 apt-get install -y --no-install-recommends \
     openbox \
@@ -204,13 +204,13 @@ apt-get install -y --no-install-recommends \
     xdotool \
     wmctrl
 
-# ── Display manager ───────────────────────────────────────────
+# â”€â”€ Display manager â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     lightdm \
     lightdm-gtk-greeter \
     lightdm-gtk-greeter-settings
 
-# ── Fonts ─────────────────────────────────────────────────────
+# â”€â”€ Fonts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing fonts..."
 apt-get install -y --no-install-recommends \
     fonts-noto \
@@ -223,7 +223,7 @@ apt-get install -y --no-install-recommends \
     fontconfig \
     libfreetype6
 
-# ── Themes & icons ────────────────────────────────────────────
+# â”€â”€ Themes & icons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     papirus-icon-theme \
     arc-theme \
@@ -232,7 +232,7 @@ apt-get install -y --no-install-recommends \
     lxappearance \
     qt5ct
 
-# ── File manager & terminal ───────────────────────────────────
+# â”€â”€ File manager & terminal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     thunar \
     thunar-archive-plugin \
@@ -244,7 +244,7 @@ apt-get install -y --no-install-recommends \
     xfce4-terminal \
     mousepad
 
-# ── Media ─────────────────────────────────────────────────────
+# â”€â”€ Media â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     pulseaudio \
     pavucontrol \
@@ -254,7 +254,7 @@ apt-get install -y --no-install-recommends \
     eog \
     evince
 
-# ── System tools ──────────────────────────────────────────────
+# â”€â”€ System tools â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     nano \
     vim \
@@ -285,19 +285,19 @@ apt-get install -y --no-install-recommends \
     gparted \
     baobab
 
-# ── Browser ───────────────────────────────────────────────────
+# â”€â”€ Browser â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing browser..."
 apt-get install -y --no-install-recommends chromium || \
 apt-get install -y --no-install-recommends chromium-browser || \
 apt-get install -y --no-install-recommends firefox-esr
 ok "Browser installed"
 
-# ── Node.js 20 ────────────────────────────────────────────────
+# â”€â”€ Node.js 20 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing Node.js 20..."
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash - 2>/dev/null
 apt-get install -y nodejs
 
-# ── Electron dependencies ─────────────────────────────────────
+# â”€â”€ Electron dependencies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     libgtk-3-0 \
     libnotify4 \
@@ -316,33 +316,33 @@ apt-get install -y --no-install-recommends \
     libxi6 \
     libxfixes3
 
-# ── Printer support ───────────────────────────────────────────
+# â”€â”€ Printer support â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     cups \
     system-config-printer \
     printer-driver-all 2>/dev/null || true
 
-# ── Bluetooth ─────────────────────────────────────────────────
+# â”€â”€ Bluetooth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     bluetooth \
     bluez \
     blueman 2>/dev/null || true
 
-# ── Power management ──────────────────────────────────────────
+# â”€â”€ Power management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
     acpi \
     acpid \
     tlp \
     xfce4-power-manager 2>/dev/null || true
 
-# ── Locale & timezone ─────────────────────────────────────────
+# â”€â”€ Locale & timezone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 ln -sf /usr/share/zoneinfo/Africa/Kampala /etc/localtime
 echo "Africa/Kampala" > /etc/timezone
 
-# ── Users ─────────────────────────────────────────────────────
+# â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Setting up users..."
 useradd -m -s /bin/bash \
     -G sudo,audio,video,netdev,plugdev,bluetooth,cdrom,floppy,lp,scanner \
@@ -352,7 +352,7 @@ echo "root:teddyos" | chpasswd
 echo "teddy ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/teddy
 chmod 440 /etc/sudoers.d/teddy
 
-# ── Hostname ──────────────────────────────────────────────────
+# â”€â”€ Hostname â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "teddy-os" > /etc/hostname
 cat > /etc/hosts << 'HOSTS'
 127.0.0.1       localhost
@@ -362,7 +362,7 @@ ff02::1         ip6-allnodes
 ff02::2         ip6-allrouters
 HOSTS
 
-# ── OS identity ───────────────────────────────────────────────
+# â”€â”€ OS identity â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mkdir -p /etc/teddy-os
 cat > /etc/os-release << 'OSREL'
 PRETTY_NAME="Teddy OS 1.0 (Kampala)"
@@ -387,7 +387,7 @@ TEDDY_OS_ARCH="x86_64"
 TEDDY_OS_DATE="2025"
 TREL'
 
-# ── LightDM ───────────────────────────────────────────────────
+# â”€â”€ LightDM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /etc/lightdm/lightdm.conf << 'LDM'
 [LightDM]
 run-directory=/run/lightdm
@@ -410,12 +410,12 @@ background=#0f0c1a
 theme-name=Arc-Dark
 icon-theme-name=Papirus-Dark
 font-name=Noto Sans 11
-clock-format=%H:%M — %A, %B %e
+clock-format=%H:%M â€” %A, %B %e
 indicators=~spacer;~clock;~spacer
 position=50%,center 50%,center
 GREETER
 
-# ── Openbox config for teddy user ─────────────────────────────
+# â”€â”€ Openbox config for teddy user â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mkdir -p /home/teddy/.config/openbox
 mkdir -p /home/teddy/.config/dunst
 
@@ -532,7 +532,7 @@ cat > /home/teddy/.config/openbox/rc.xml << 'OBRC'
 </openbox_config>
 OBRC
 
-# ── tint2 taskbar ─────────────────────────────────────────────
+# â”€â”€ tint2 taskbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mkdir -p /home/teddy/.config/tint2
 cat > /home/teddy/.config/tint2/tint2rc << 'TINT2'
 #---- Background definitions
@@ -609,7 +609,7 @@ clock_background_id = 0
 clock_tooltip = %A %e %B %Y
 TINT2
 
-# ── dunst notifications ───────────────────────────────────────
+# â”€â”€ dunst notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /home/teddy/.config/dunst/dunstrc << 'DUNST'
 [global]
 monitor = 0
@@ -674,7 +674,7 @@ frame_color = "#f87171"
 timeout = 0
 DUNST
 
-# ── GTK theme ─────────────────────────────────────────────────
+# â”€â”€ GTK theme â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mkdir -p /home/teddy/.config/gtk-3.0
 cat > /home/teddy/.config/gtk-3.0/settings.ini << 'GTK3'
 [Settings]
@@ -712,7 +712,7 @@ gtk-xft-hintstyle="hintslight"
 gtk-xft-rgba="rgb"
 GTK2
 
-# ── Launcher scripts ──────────────────────────────────────────
+# â”€â”€ Launcher scripts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /usr/local/bin/teddy-os-launch << 'LAUNCH'
 #!/bin/bash
 # Teddy OS app launcher
@@ -748,8 +748,8 @@ chmod +x /usr/local/bin/teddy-os-launch
 cat > /usr/local/bin/teddy-os-setup << 'SETUP'
 #!/bin/bash
 echo ""
-echo "🐻 Teddy OS"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "ðŸ» Teddy OS"
+echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
 echo "Built by Bryt Ma Tech Uganda"
 echo ""
 echo "Teddy OS app not found at /opt/teddy-os/"
@@ -767,7 +767,7 @@ exec xfce4-terminal
 SETUP
 chmod +x /usr/local/bin/teddy-os-setup
 
-# ── Wallpaper ─────────────────────────────────────────────────
+# â”€â”€ Wallpaper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mkdir -p /usr/share/backgrounds/teddy-os
 cat > /usr/share/backgrounds/teddy-os/default.svg << 'WALL'
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">
@@ -789,7 +789,7 @@ cat > /usr/share/backgrounds/teddy-os/default.svg << 'WALL'
   <circle cx="960" cy="1000" r="300" fill="#a855f7" opacity="0.03" filter="url(#blur)"/>
   <text x="960" y="460" text-anchor="middle"
     font-family="Noto Sans, sans-serif" font-size="72"
-    font-weight="200" fill="#c084fc" opacity="0.55">🐻</text>
+    font-weight="200" fill="#c084fc" opacity="0.55">ðŸ»</text>
   <text x="960" y="548" text-anchor="middle"
     font-family="Noto Sans, sans-serif" font-size="32"
     font-weight="300" fill="#9333ea" opacity="0.5"
@@ -810,7 +810,7 @@ mode=5
 bgcolor=#0f0c1a
 NITRO
 
-# ── Neofetch branding ─────────────────────────────────────────
+# â”€â”€ Neofetch branding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /etc/profile.d/teddy-motd.sh << 'MOTD'
 #!/bin/bash
 if [ -f /usr/bin/neofetch ]; then
@@ -824,23 +824,23 @@ if [ -f /usr/bin/neofetch ]; then
         --print_info disk 2>/dev/null || true
 fi
 echo ""
-echo "  🐻 Welcome to Teddy OS — Built by Bryt Ma Tech Uganda"
+echo "  ðŸ» Welcome to Teddy OS â€” Built by Bryt Ma Tech Uganda"
 echo ""
 MOTD
 chmod +x /etc/profile.d/teddy-motd.sh
 
-# ── Services ──────────────────────────────────────────────────
+# â”€â”€ Services â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 systemctl enable NetworkManager
 systemctl enable lightdm
 systemctl enable bluetooth 2>/dev/null || true
 systemctl enable cups 2>/dev/null || true
 
-# ── Fix permissions ───────────────────────────────────────────
+# â”€â”€ Fix permissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 chown -R teddy:teddy /home/teddy
 mkdir -p /opt/teddy-os
 chown -R teddy:teddy /opt/teddy-os
 
-# ── Cleanup ───────────────────────────────────────────────────
+# â”€â”€ Cleanup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get autoremove -y --purge
 apt-get clean
 rm -rf /var/lib/apt/lists/*
@@ -849,18 +849,18 @@ rm -f /etc/ssh/ssh_host_*
 history -c
 
 echo ""
-echo "✅ Teddy OS chroot setup complete"
+echo "âœ… Teddy OS chroot setup complete"
 CHROOT_SCRIPT
 
 chmod +x "$ROOTFS/teddy-setup.sh"
 
-# ── Run chroot setup ──────────────────────────────────────────
+# â”€â”€ Run chroot setup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Configuring Teddy OS inside chroot (10-20 min)"
 chroot "$ROOTFS" /teddy-setup.sh
 rm -f "$ROOTFS/teddy-setup.sh"
 ok "Chroot configuration complete"
 
-# ── Copy Teddy OS desktop app ─────────────────────────────────
+# â”€â”€ Copy Teddy OS desktop app â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Installing Teddy OS desktop application"
 mkdir -p "$ROOTFS/opt/teddy-os"
 
@@ -871,11 +871,11 @@ elif [ -d "./teddy-os/build" ]; then
     cp -r ./teddy-os/build/* "$ROOTFS/opt/teddy-os/"
     ok "Teddy OS web build installed"
 else
-    warn "No desktop build found — will prompt user on first boot"
+    warn "No desktop build found â€” will prompt user on first boot"
     warn "Before building ISO: cd desktop && npm install && npm run build"
 fi
 
-# ── Squash filesystem ─────────────────────────────────────────
+# â”€â”€ Squash filesystem â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Compressing filesystem (5-15 min)"
 progress "Creating squashfs with xz compression..."
 mksquashfs "$ROOTFS" "$ISO/live/filesystem.squashfs" \
@@ -888,7 +888,7 @@ mksquashfs "$ROOTFS" "$ISO/live/filesystem.squashfs" \
     -e boot 2>/dev/null
 ok "Filesystem compressed: $(du -sh "$ISO/live/filesystem.squashfs" | cut -f1)"
 
-# ── Kernel + initrd ───────────────────────────────────────────
+# â”€â”€ Kernel + initrd â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Copying kernel and initramfs"
 KERNEL=$(ls "$ROOTFS/boot/vmlinuz-"* | head -1)
 INITRD=$(ls "$ROOTFS/boot/initrd.img-"* | head -1)
@@ -897,11 +897,11 @@ cp "$INITRD" "$ISO/live/initrd.img"
 ok "Kernel: $(basename "$KERNEL")"
 ok "Initrd: $(basename "$INITRD")"
 
-# ── GRUB config ───────────────────────────────────────────────
+# â”€â”€ GRUB config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Writing bootloader configuration"
 
 cat > "$ISO/boot/grub/grub.cfg" << GRUBCFG
-# ─── Teddy OS GRUB ──────────────────────────────────────────
+# â”€â”€â”€ Teddy OS GRUB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Built by Bryt Ma Tech Uganda
 
 set default=0
@@ -920,7 +920,7 @@ terminal_output gfxterm
 set color_normal=light-gray/black
 set color_highlight=white/purple
 
-menuentry "🐻  Boot Teddy OS ${TEDDY_VERSION}" --class teddy-os {
+menuentry "ðŸ»  Boot Teddy OS ${TEDDY_VERSION}" --class teddy-os {
     linux  /live/vmlinuz \\
         boot=live \\
         quiet \\
@@ -935,7 +935,7 @@ menuentry "🐻  Boot Teddy OS ${TEDDY_VERSION}" --class teddy-os {
     initrd /live/initrd.img
 }
 
-menuentry "🔧  Boot Teddy OS — Safe mode" --class teddy-os {
+menuentry "ðŸ”§  Boot Teddy OS â€” Safe mode" --class teddy-os {
     linux  /live/vmlinuz \\
         boot=live \\
         nomodeset \\
@@ -946,7 +946,7 @@ menuentry "🔧  Boot Teddy OS — Safe mode" --class teddy-os {
     initrd /live/initrd.img
 }
 
-menuentry "💿  Install Teddy OS to hard drive" --class install {
+menuentry "ðŸ’¿  Install Teddy OS to hard drive" --class install {
     linux  /live/vmlinuz \\
         boot=live \\
         components \\
@@ -956,12 +956,12 @@ menuentry "💿  Install Teddy OS to hard drive" --class install {
     initrd /live/initrd.img
 }
 
-menuentry "🖥  Boot from hard drive" --class harddisk {
+menuentry "ðŸ–¥  Boot from hard drive" --class harddisk {
     set root=(hd0)
     chainloader +1
 }
 
-menuentry "🧪  Memory test (memtest86+)" --class memtest {
+menuentry "ðŸ§ª  Memory test (memtest86+)" --class memtest {
     linux /live/memtest
 }
 GRUBCFG
@@ -996,7 +996,7 @@ GRUB_FONTS="/usr/share/grub"
 
 ok "Bootloader configured (BIOS + UEFI)"
 
-# ── Build ISO ─────────────────────────────────────────────────
+# â”€â”€ Build ISO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Building ISO image"
 progress "Running xorriso..."
 
@@ -1004,7 +1004,7 @@ xorriso -as mkisofs \
     -iso-level 3 \
     -full-iso9660-filenames \
     -volid "TEDDYOS_10" \
-    -appid "Teddy OS ${TEDDY_VERSION} — Bryt Ma Tech Uganda" \
+    -appid "Teddy OS ${TEDDY_VERSION} â€” Bryt Ma Tech Uganda" \
     -publisher "Bryt Ma Tech Uganda" \
     -preparer "Teddy OS Build System" \
     -eltorito-boot boot/grub/core.img \
@@ -1024,28 +1024,28 @@ xorriso -as mkisofs \
 
 ok "ISO built: $(du -sh "$OUTPUT" | cut -f1)"
 
-# ── Done ──────────────────────────────────────────────────────
+# â”€â”€ Done â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo ""
 echo -e "${B}${G}"
-echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  🐻  TEDDY OS ISO READY"
-echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
+echo "  ðŸ»  TEDDY OS ISO READY"
+echo "  â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
 echo -e "${N}"
 echo "  File : $OUTPUT"
 echo "  Size : $(du -sh "$OUTPUT" | cut -f1)"
 echo "  Built: $(date)"
 echo ""
-echo "  ── Flash to USB ──────────────────────────────"
+echo "  â”€â”€ Flash to USB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"
 echo "  Linux/Mac:"
 echo "    sudo dd if=$OUTPUT of=/dev/sdX bs=4M status=progress"
 echo ""
-echo "  Windows: Use balenaEtcher — https://etcher.balena.io"
+echo "  Windows: Use balenaEtcher â€” https://etcher.balena.io"
 echo ""
-echo "  ── Boot your laptop ──────────────────────────"
-echo "  Insert USB → restart → press F12 (or F8/F9/Esc)"
+echo "  â”€â”€ Boot your laptop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"
+echo "  Insert USB â†’ restart â†’ press F12 (or F8/F9/Esc)"
 echo "  Select USB drive from boot menu"
 echo ""
-echo "  ── Install permanently ───────────────────────"
+echo "  â”€â”€ Install permanently â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"
 echo "  Once booted: sudo bash /opt/teddy-os/install.sh"
 echo ""
 echo -e "  ${Y}Built by Bryt Ma Tech Uganda${N}"
@@ -1053,11 +1053,11 @@ echo ""
 
 # NOTE: All branding is already embedded in the build script above.
 # Key branding locations:
-# - /etc/os-release          → "Teddy OS" identity
-# - /etc/teddy-os/release    → Bryt Ma Tech Uganda
-# - GRUB menu                → 🐻 Teddy OS branding
-# - Wallpaper SVG            → "Built by Bryt Ma Tech Uganda"
-# - Neofetch MOTD            → Shows on every terminal open
-# - ISO publisher field      → "Bryt Ma Tech Uganda"
-# - tint2 taskbar            → Shows "Teddy OS" bottom bar
-# - LightDM greeter          → Custom dark login screen
+# - /etc/os-release          â†’ "Teddy OS" identity
+# - /etc/teddy-os/release    â†’ Bryt Ma Tech Uganda
+# - GRUB menu                â†’ ðŸ» Teddy OS branding
+# - Wallpaper SVG            â†’ "Built by Bryt Ma Tech Uganda"
+# - Neofetch MOTD            â†’ Shows on every terminal open
+# - ISO publisher field      â†’ "Bryt Ma Tech Uganda"
+# - tint2 taskbar            â†’ Shows "Teddy OS" bottom bar
+# - LightDM greeter          â†’ Custom dark login screen
