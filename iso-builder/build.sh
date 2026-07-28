@@ -288,7 +288,7 @@ echo "Installing browser..."
 apt-get install -y --no-install-recommends chromium || \
 apt-get install -y --no-install-recommends chromium-browser || \
 apt-get install -y --no-install-recommends firefox-esr
-ok "Browser installed"
+echo "Browser installed"
 
 # â”€â”€ Node.js 20 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing Node.js 20..."
