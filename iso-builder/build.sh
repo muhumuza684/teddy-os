@@ -384,7 +384,7 @@ TEDDY_OS_CODENAME="Kampala"
 TEDDY_OS_BUILT_BY="Bryt Ma Tech Uganda"
 TEDDY_OS_ARCH="x86_64"
 TEDDY_OS_DATE="2025"
-TREL'
+TREL
 
 # â”€â”€ LightDM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /etc/lightdm/lightdm.conf << 'LDM'
@@ -876,13 +876,12 @@ fi
 
 # â”€â”€ Squash filesystem â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Compressing filesystem (5-15 min)"
+df -h
 progress "Creating squashfs with xz compression..."
 mksquashfs "$ROOTFS" "$ISO/live/filesystem.squashfs" \
-    -comp xz \
-    -Xbcj x86 \
+    -comp gzip \
     -b 1048576 \
     -noappend \
-    -no-progress \
     -wildcards \
     -e boot 2>/dev/null
 ok "Filesystem compressed: $(du -sh "$ISO/live/filesystem.squashfs" | cut -f1)"
