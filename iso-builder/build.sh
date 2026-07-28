@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # =================================================================
 #  TEDDY OS â€” ISO Build System v1.0
 #  Built by Bryt Ma Tech Uganda
@@ -194,7 +194,6 @@ echo "Installing desktop..."
 apt-get install -y --no-install-recommends \
     openbox \
     obconf \
-    obmenu \
     tint2 \
     picom \
     nitrogen \
