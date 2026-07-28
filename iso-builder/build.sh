@@ -248,7 +248,6 @@ apt-get install -y --no-install-recommends \
     pulseaudio \
     pavucontrol \
     alsa-utils \
-    alsa-base \
     vlc \
     eog \
     evince
