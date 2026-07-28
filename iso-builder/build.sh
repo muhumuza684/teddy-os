@@ -346,8 +346,8 @@ echo "Setting up users..."
 useradd -m -s /bin/bash \
     -G sudo,audio,video,netdev,plugdev,bluetooth,cdrom,floppy,lp,scanner \
     teddy 2>/dev/null || true
-echo "teddy:teddy" | chpasswd
-echo "root:teddyos" | chpasswd
+usermod -p "$(openssl passwd -6 teddy)" teddy
+usermod -p "$(openssl passwd -6 teddyos)" root
 echo "teddy ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/teddy
 chmod 440 /etc/sudoers.d/teddy
 
