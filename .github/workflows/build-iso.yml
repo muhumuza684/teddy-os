@@ -1,22 +1,13 @@
-name: 🐻 Build Teddy OS ISO
+name: Build Teddy OS ISO
 
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version (e.g. 1.0.0)'
-        required: false
-        default: '1.0.0'
-
-env:
-  TEDDY_VERSION: ${{ github.event.inputs.version || '1.0.0' }}
 
 jobs:
   build-desktop:
-    name: 🖥 Build Teddy OS Desktop App
+    name: Build Teddy OS Desktop App
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -26,20 +17,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: desktop/package-lock.json
 
       - name: Install dependencies
         working-directory: desktop
-        run: npm ci
+        run: npm install
 
       - name: Build Teddy OS desktop app
         working-directory: desktop
         run: npm run build
         env:
           CI: false
-          REACT_APP_VERSION: ${{ env.TEDDY_VERSION }}
-          REACT_APP_BUILT_BY: "Bryt Ma Tech Uganda"
 
       - name: Upload desktop build
         uses: actions/upload-artifact@v4
@@ -49,7 +36,7 @@ jobs:
           retention-days: 1
 
   build-iso:
-    name: 💿 Build Teddy OS ISO
+    name: Build Teddy OS ISO
     runs-on: ubuntu-22.04
     needs: build-desktop
     steps:
@@ -65,75 +52,16 @@ jobs:
       - name: Install ISO build tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y \
-            debootstrap squashfs-tools xorriso \
-            grub-pc-bin grub-efi-amd64-bin \
-            mtools isolinux syslinux-common \
-            curl wget ca-certificates rsync
+          sudo apt-get install -y debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools isolinux syslinux-common curl wget ca-certificates rsync
 
       - name: Build Teddy OS ISO
         run: |
           cd iso-builder
           sudo bash build.sh
-        env:
-          TEDDY_VERSION: ${{ env.TEDDY_VERSION }}
-
-      - name: Get ISO info
-        id: iso_info
-        run: |
-          ISO=$(ls iso-builder/teddyos-*.iso 2>/dev/null || ls teddyos-*.iso 2>/dev/null | head -1)
-          echo "iso_path=$ISO" >> $GITHUB_OUTPUT
-          echo "iso_size=$(du -sh "$ISO" | cut -f1)" >> $GITHUB_OUTPUT
-          echo "iso_name=$(basename "$ISO")" >> $GITHUB_OUTPUT
 
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
           name: teddy-os-iso
-          path: ${{ steps.iso_info.outputs.iso_path }}
+          path: teddyos-*.iso
           retention-days: 7
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "🐻 Teddy OS ${{ env.TEDDY_VERSION }} — Kampala"
-          body: |
-            ## 🐻 Teddy OS ${{ env.TEDDY_VERSION }} "Kampala"
-            **Built by Bryt Ma Tech Uganda**
-
-            ### Download & Install
-
-            1. Download `teddyos-${{ env.TEDDY_VERSION }}-x86_64.iso` below
-            2. Flash to USB with [balenaEtcher](https://etcher.balena.io)
-            3. Boot your laptop from the USB
-            4. To install permanently: open terminal → `sudo bash /opt/teddy-os/install.sh`
-
-            ### What's included
-            - 📝 Document Editor (AI-powered, replaces Microsoft Word)
-            - ✨ AI Assistant (Claude built-in)
-            - 💻 Terminal
-            - 📁 File Manager
-            - 🔢 Calculator
-            - 📅 Calendar
-            - ⚙️ Settings
-            - 👤 User accounts + login screen
-            - 🔔 Notifications
-
-            ### System Requirements
-            - CPU: x86_64 (any laptop from 2008+)
-            - RAM: 1GB minimum, 2GB recommended
-            - Storage: 8GB minimum
-            - USB: 2GB minimum (for installation)
-
-            ### Default login
-            Username: `teddy` | Password: `teddy`
-            *(Change with `passwd` after first login)*
-
-            ---
-            Built with ❤️ in Uganda by **Bryt Ma Tech Uganda**
-          files: ${{ steps.iso_info.outputs.iso_path }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
