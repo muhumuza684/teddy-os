@@ -140,7 +140,6 @@ apt-get install -y --no-install-recommends \
     e2fsprogs \
     dosfstools \
     parted \
-    gparted \
     ca-certificates \
     apt-transport-https \
     gnupg \
@@ -177,17 +176,9 @@ apt-get install -y --no-install-recommends \
 # â”€â”€ GPU drivers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing GPU drivers..."
 apt-get install -y --no-install-recommends \
-    xserver-xorg-video-intel \
-    xserver-xorg-video-amdgpu \
-    xserver-xorg-video-nouveau \
-    xserver-xorg-video-vesa \
-    xserver-xorg-video-fbdev \
     mesa-utils \
     libgl1-mesa-dri \
-    libgl1-mesa-glx \
-    mesa-vulkan-drivers \
-    vainfo \
-    intel-media-va-driver-non-free 2>/dev/null || true
+    libgl1-mesa-glx 
 
 # â”€â”€ Desktop environment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing desktop..."
@@ -213,8 +204,6 @@ apt-get install -y --no-install-recommends \
 echo "Installing fonts..."
 apt-get install -y --no-install-recommends \
     fonts-noto \
-    fonts-noto-color-emoji \
-    fonts-noto-cjk \
     fonts-open-sans \
     fonts-ubuntu \
     fonts-firacode \
@@ -248,7 +237,6 @@ apt-get install -y --no-install-recommends \
     pulseaudio \
     pavucontrol \
     alsa-utils \
-    vlc \
     eog \
     evince
 
@@ -280,15 +268,8 @@ apt-get install -y --no-install-recommends \
     dmidecode \
     inxi \
     smartmontools \
-    gparted \
     baobab
 
-# â”€â”€ Browser â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo "Installing browser..."
-apt-get install -y --no-install-recommends chromium || \
-apt-get install -y --no-install-recommends chromium-browser || \
-apt-get install -y --no-install-recommends firefox-esr
-echo "Browser installed"
 
 # â”€â”€ Node.js 20 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo "Installing Node.js 20..."
@@ -314,17 +295,7 @@ apt-get install -y --no-install-recommends \
     libxi6 \
     libxfixes3
 
-# â”€â”€ Printer support â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-apt-get install -y --no-install-recommends \
-    cups \
-    system-config-printer \
-    printer-driver-all 2>/dev/null || true
 
-# â”€â”€ Bluetooth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-apt-get install -y --no-install-recommends \
-    bluetooth \
-    bluez \
-    blueman 2>/dev/null || true
 
 # â”€â”€ Power management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get install -y --no-install-recommends \
