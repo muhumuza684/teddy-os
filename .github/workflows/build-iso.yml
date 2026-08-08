@@ -1,10 +1,8 @@
 name: Build Teddy OS ISO
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   build-desktop:
     name: Build Teddy OS Desktop App
@@ -12,22 +10,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install dependencies
         working-directory: desktop
         run: npm install
-
       - name: Build Teddy OS desktop app
         working-directory: desktop
         run: npm run build
         env:
           CI: false
-
       - name: Upload desktop build
         uses: actions/upload-artifact@v4
         with:
@@ -35,33 +29,56 @@ jobs:
           path: desktop/build/
           retention-days: 1
 
-  build-iso:
-    name: Build Teddy OS ISO
+  build-rootfs:
+    name: Build Teddy OS Rootfs
     runs-on: ubuntu-22.04
     needs: build-desktop
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Download desktop build
         uses: actions/download-artifact@v4
         with:
           name: teddy-os-desktop-build
           path: desktop/build/
-
-      - name: Install ISO build tools
+      - name: Install rootfs build tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools isolinux syslinux-common curl wget ca-certificates rsync
-
-      - name: Build Teddy OS ISO
+          sudo apt-get install -y debootstrap zstd curl wget ca-certificates rsync
+      - name: Build rootfs
         run: |
           cd iso-builder
-          sudo bash build.sh
+          sudo bash build-rootfs.sh
+      - name: Upload rootfs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: teddy-os-rootfs
+          path: iso-builder/artifact/teddy-work.tar.zst
+          retention-days: 1
 
+  build-image:
+    name: Build Teddy OS ISO
+    runs-on: ubuntu-22.04
+    needs: build-rootfs
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download rootfs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: teddy-os-rootfs
+          path: iso-builder/artifact/
+      - name: Install image build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools isolinux syslinux-common zstd
+      - name: Build ISO from rootfs
+        run: |
+          cd iso-builder
+          sudo bash build-image.sh
       - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
           name: teddy-os-iso
-          path: teddyos-*.iso
+          path: iso-builder/teddyos-*.iso
           retention-days: 7
