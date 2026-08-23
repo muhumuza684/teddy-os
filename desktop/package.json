@@ -1,10 +1,10 @@
 {
   "name": "teddy-os",
-  "version": "1.0.0",
-  "description": "Teddy OS — Built by Bryt Ma Tech Uganda",
+  "version": "2.0.0",
+  "description": "Teddy OS v2 — Built by Bryt Ma Tech UG",
   "main": "electron/main.js",
   "homepage": "./",
-  "author": { "name": "Bryt Ma Tech Uganda", "email": "hello@brytmatech.ug" },
+  "author": { "name": "Bryt Ma Tech UG", "email": "hello@brytmatech.ug" },
   "license": "MIT",
   "scripts": {
     "start": "react-scripts start",
@@ -30,7 +30,7 @@
   "build": {
     "appId": "ug.brytmatech.teddyos",
     "productName": "Teddy OS",
-    "copyright": "Copyright © 2025 Bryt Ma Tech Uganda",
+    "copyright": "Copyright © 2026 Bryt Ma Tech UG",
     "directories": { "output": "dist" },
     "files": ["build/**/*", "electron/**/*"],
     "win": {

@@ -27,7 +27,7 @@ export default function Settings({ settings, onUpdate, currentUser, onLock, onLo
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>Teddy OS v1.0 · Built by Bryt Ma Tech Uganda</div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>Teddy OS v2.0 · Built by Bryt Ma Tech UG</div>
       <Section title="Account">
         <Row label={currentUser?.username || 'User'} sub={currentUser?.role === 'admin' ? 'Administrator' : 'Standard user'}>
           <span style={{ fontSize: 20 }}>{currentUser?.avatar}</span>
@@ -46,8 +46,8 @@ export default function Settings({ settings, onUpdate, currentUser, onLock, onLo
         </Row>
       </Section>
       <Section title="About">
-        <Row label="Teddy OS" sub="Version 1.0.0"><span style={{ fontSize: 11 }}>🐻</span></Row>
-        <Row label="Developer" sub="Bryt Ma Tech Uganda"><span style={{ fontSize: 11, color: 'var(--accent)' }}>Uganda 🇺🇬</span></Row>
+        <Row label="Teddy OS" sub="Version 2.0.0"><span style={{ fontSize: 11 }}>🐻</span></Row>
+        <Row label="Developer" sub="Built by Bryt Ma Tech UG"><span style={{ fontSize: 11, color: 'var(--accent)' }}>Uganda 🇺🇬</span></Row>
       </Section>
     </div>
   );

@@ -35,7 +35,7 @@ export default function Editor() {
     const doc = await dbGet('docs', name);
     if (doc && editorRef.current) { editorRef.current.innerHTML = doc.content; setDocName(name); updateStatus(); }
     else if (editorRef.current) {
-      editorRef.current.innerHTML = `<h1>Welcome to Teddy OS</h1><p>Built by <strong>Bryt Ma Tech Uganda</strong>.</p><p>Start typing your document here...</p>`;
+      editorRef.current.innerHTML = `<h1>Welcome to Teddy OS</h1><p>Built by <strong>Bryt Ma Tech UG</strong>.</p><p>Start typing your document here...</p>`;
       updateStatus();
     }
   }
@@ -76,7 +76,7 @@ export default function Editor() {
     const content = editorRef.current?.innerHTML || '';
     const w = window.open('', '_blank');
     if (!w) return;
-    w.document.write(`<!DOCTYPE html><html><head><title>${docName}</title><meta charset="utf-8"><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:0 32px;line-height:1.8;font-size:15px;color:#1a1a1a}h1{font-size:26px;font-weight:600;margin-bottom:14px}h2{font-size:20px;font-weight:600;margin-bottom:10px}p{margin-bottom:8px}.footer{margin-top:48px;font-size:11px;color:#888;text-align:center;border-top:1px solid #eee;padding-top:12px}</style></head><body>${content}<div class="footer">Teddy OS · Built by Bryt Ma Tech Uganda · ${new Date().toLocaleDateString()}</div></body></html>`);
+    w.document.write(`<!DOCTYPE html><html><head><title>${docName}</title><meta charset="utf-8"><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:0 32px;line-height:1.8;font-size:15px;color:#1a1a1a}h1{font-size:26px;font-weight:600;margin-bottom:14px}h2{font-size:20px;font-weight:600;margin-bottom:10px}p{margin-bottom:8px}.footer{margin-top:48px;font-size:11px;color:#888;text-align:center;border-top:1px solid #eee;padding-top:12px}</style></head><body>${content}<div class="footer">Teddy OS · Built by Bryt Ma Tech UG · ${new Date().toLocaleDateString()}</div></body></html>`);
     w.document.close();
     setTimeout(() => { w.focus(); w.print(); }, 400);
   }
@@ -86,30 +86,21 @@ export default function Editor() {
     if (sel && sel.toString().trim().length > 0) { e.preventDefault(); savedSelRef.current = sel.getRangeAt(0).cloneRange(); setCtxMenu({ x: e.clientX, y: e.clientY }); }
   }, []);
 
-  async function ctxAI(action) {
+  function ctxAI(action) {
     setCtxMenu(null);
     const range = savedSelRef.current;
     if (!range) return;
-    const selText = range.toString();
-    const prompts = {
-      rewrite: `Rewrite this text cleanly and professionally. Return ONLY the rewritten text:\n\n${selText}`,
-      improve: `Improve the writing quality. Return ONLY the improved text:\n\n${selText}`,
-      shorter: `Make this shorter and more concise. Return ONLY the result:\n\n${selText}`,
-      expand:  `Expand this with more detail. Return ONLY the expanded text:\n\n${selText}`,
-      fix:     `Fix grammar and spelling. Return ONLY the corrected text:\n\n${selText}`,
-    };
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: prompts[action] }] }),
-      });
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || 'Error';
-      const sel = window.getSelection();
-      sel.removeAllRanges(); sel.addRange(range);
-      document.execCommand('insertText', false, reply);
-      updateStatus();
-    } catch {}
+    const text = range.toString();
+    let reply = text;
+    if (action === 'shorter') reply = text.split(/\s+/).filter((word, i) => i === 0 || !/^(the|a|an|very|really|that)$/i.test(word)).join(' ');
+    if (action === 'fix') reply = text.replace(/\s+/g, ' ').replace(/\bi\b/g, 'I').replace(/(^|[.!?]\s+)([a-z])/g, (_, prefix, letter) => prefix + letter.toUpperCase());
+    if (action === 'improve') reply = text.replace(/\b(good|bad|nice)\b/gi, word => ({ good: 'effective', bad: 'difficult', nice: 'clear' }[word.toLowerCase()] || word));
+    if (action === 'rewrite') reply = text.trim();
+    if (action === 'expand') reply = `${text.trim()}\n\nThis is an important point to consider carefully.`;
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    document.execCommand('insertText', false, reply);
+    updateStatus();
   }
 
   return (

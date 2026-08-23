@@ -99,7 +99,7 @@ function SetupScreen({ createUser, onDone }) {
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: 48 }}>{avatar}</div>
           <div style={{ fontSize: 20, fontWeight: 500, color: '#c084fc', marginTop: 8 }}>Welcome to Teddy OS</div>
-          <div style={{ fontSize: 12, color: '#6b6085', marginTop: 4 }}>Built by Bryt Ma Tech Uganda</div>
+          <div style={{ fontSize: 12, color: '#6b6085', marginTop: 4 }}>Built by Bryt Ma Tech UG</div>
           <div style={{ fontSize: 12, color: '#a89ec8', marginTop: 8 }}>Create your account to get started</div>
         </div>
         {step === 1 && (
@@ -171,7 +171,7 @@ function LoginScreen({ users, login, createUser }) {
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ fontSize: 52 }}>{selUser?.avatar || '🐻'}</div>
           <div style={{ fontSize: 18, fontWeight: 500, color: '#f0eeff', marginTop: 8 }}>{selected || 'Teddy OS'}</div>
-          <div style={{ fontSize: 11, color: '#6b6085', marginTop: 2 }}>Teddy OS · Bryt Ma Tech Uganda</div>
+          <div style={{ fontSize: 11, color: '#6b6085', marginTop: 2 }}>Teddy OS · Built by Bryt Ma Tech UG</div>
         </div>
         {users.length > 1 && (
           <div style={{ display: 'flex', gap: 8, marginBottom: 16, justifyContent: 'center', flexWrap: 'wrap' }}>

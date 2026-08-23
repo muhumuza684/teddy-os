@@ -10,6 +10,7 @@ import Calendar from './apps/Calendar';
 import Terminal from './apps/Terminal';
 import FileManager from './apps/FileManager';
 import Settings from './apps/Settings';
+import ModeCenter, { MODE_APPS, MODE_META, CareWelcome, SimpleWelcome } from './components/Modes';
 
 const APP_META = {
   editor: { title: 'Document Editor', icon: '📝' }, ai: { title: 'AI Assistant', icon: '✨' },
@@ -34,6 +35,14 @@ export default function App() {
   const [userMenu, setUserMenu] = useState(false);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [activeDocName, setActiveDocName] = useState(null);
+  const [mode, setMode] = useState(() => localStorage.getItem('teddy:mode') || 'simple');
+  const [modeCenter, setModeCenter] = useState(false);
+  const visibleApps = TASKBAR_APPS.filter(app => MODE_APPS[mode].includes(app.id));
+  const setUserMode = useCallback((nextMode) => {
+    setMode(nextMode);
+    localStorage.setItem('teddy:mode', nextMode);
+    setModeCenter(false);
+  }, []);
   const launcherRef = useRef(null);
 
   useEffect(() => {
@@ -42,7 +51,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    openApp('editor'); openApp('ai');
+    openApp('editor');
     setTimeout(() => notify({ title: 'Welcome to Teddy OS', message: `Good to see you, ${currentUser?.username || 'user'}!`, type: 'success' }), 1200);
   }, []);
 
@@ -71,18 +80,21 @@ export default function App() {
             <div style={{ position: 'absolute', top: 42, left: 0, background: 'rgba(10,6,22,0.98)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 16, width: 300, zIndex: 2000 }}>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 10, fontWeight: 600, textTransform: 'uppercase' }}>All Apps</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 5 }}>
-                {TASKBAR_APPS.map(({ id, icon, label }) => (
+                {visibleApps.map(({ id, icon, label }) => (
                   <button key={id} onClick={() => { openApp(id); setLauncher(false); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 4px', borderRadius: 8, cursor: 'pointer', background: 'transparent', border: 'none' }}>
                     <i className={`ti ${icon}`} style={{ fontSize: 20, color: 'rgba(255,255,255,0.75)' }} />
                     <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>{label}</span>
                   </button>
                 ))}
               </div>
-              <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', marginTop: 12, paddingTop: 10, fontSize: 10, color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>Bryt Ma Tech Uganda</div>
+              <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', marginTop: 12, paddingTop: 10, fontSize: 10, color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>Built by Bryt Ma Tech UG</div>
             </div>
           )}
         </div>
-        {TASKBAR_APPS.map(({ id, icon, label }) => (
+        <button className="mode-pill" onClick={() => { setModeCenter(true); setLauncher(false); }} aria-label={`Current mode: ${MODE_META[mode].label}. Change mode`}>
+          {MODE_META[mode].icon} {MODE_META[mode].label}
+        </button>
+        {visibleApps.map(({ id, icon, label }) => (
           <button key={id} onClick={() => isOpen(id) ? minimizeApp(id) : openApp(id)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, cursor: 'pointer', fontSize: 11, color: isOpen(id) ? '#d8b4fe' : 'rgba(255,255,255,0.45)', background: isOpen(id) ? 'rgba(192,132,252,0.14)' : 'transparent' }}>
             <i className={`ti ${icon}`} style={{ fontSize: 13 }} /><span>{label}</span>
           </button>
@@ -132,10 +144,13 @@ export default function App() {
           </div>
         )}
       </div>
+      {mode === 'simple' && <SimpleWelcome onOpenModes={() => setModeCenter(true)} />}
+      {mode === 'care' && <CareWelcome onOpenModes={() => setModeCenter(true)} />}
+      {modeCenter && <ModeCenter mode={mode} onChange={setUserMode} onClose={() => setModeCenter(false)} />}
       <div style={{ height: 22, background: 'rgba(6,3,14,0.92)', borderTop: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 14px', gap: 12, flexShrink: 0 }}>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>🐻 Teddy OS v1.0</span>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>🐻 Teddy OS v2.0 · {MODE_META[mode].label}</span>
         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>Built by Bryt Ma Tech Uganda</span>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>Built by Bryt Ma Tech UG</span>
         <span style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{Object.keys(windows).length} app{Object.keys(windows).length !== 1 ? 's' : ''} open</span>
       </div>
     </div>
