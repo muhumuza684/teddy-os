@@ -2,194 +2,200 @@
 
 # 🐻 Teddy OS
 
-### A lightweight, AI-powered Linux operating system
+### A calm, protective, accessibility-first Linux desktop
 
-**Built by Bryt Ma Tech Uganda 🇺🇬**
+**Built by Bryt Ma Tech UG**
 
-[![Build ISO](https://github.com/YOUR_USERNAME/teddy-os/actions/workflows/build-iso.yml/badge.svg)](https://github.com/YOUR_USERNAME/teddy-os/actions/workflows/build-iso.yml)
+[![Build Teddy OS ISO](https://github.com/muhumuza684/teddy-os/actions/workflows/build-iso.yml/badge.svg)](https://github.com/muhumuza684/teddy-os/actions/workflows/build-iso.yml)
+[![Teddy OS Quality Checks](https://github.com/muhumuza684/teddy-os/actions/workflows/quality.yml/badge.svg)](https://github.com/muhumuza684/teddy-os/actions/workflows/quality.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Made in Uganda](https://img.shields.io/badge/Made%20in-Uganda%20🇺🇬-yellow.svg)]()
-[![Version](https://img.shields.io/badge/Version-1.0.0%20Kampala-blueviolet.svg)]()
+[![Version](https://img.shields.io/badge/Version-2.1.0-blueviolet.svg)](https://github.com/muhumuza684/teddy-os/releases)
+[![Made in Uganda](https://img.shields.io/badge/Made%20in-Uganda-yellow.svg)](https://github.com/muhumuza684)
 
----
+**Teddy OS is designed to make computers easier to understand, safer to use, and lighter on everyday hardware.**
 
-[**⬇️ Download Latest ISO**](https://github.com/YOUR_USERNAME/teddy-os/releases/latest) &nbsp;·&nbsp;
-[**📖 Install Guide**](iso-builder/README.md) &nbsp;·&nbsp;
-[**🐛 Report Issue**](https://github.com/YOUR_USERNAME/teddy-os/issues)
+[Download latest build](https://github.com/muhumuza684/teddy-os/actions) · [Build from source](#build-from-source) · [Report an issue](https://github.com/muhumuza684/teddy-os/issues) · [Read the Version 2.1 plan](docs/TEDDY-V2.1-IMPLEMENTATION.md)
 
 </div>
 
 ---
 
-## What is Teddy OS?
+## The idea
 
-Teddy OS is a **free, lightweight Linux operating system** built from the ground up in Uganda. It boots directly on your laptop — no Windows or macOS required underneath. It comes with a full suite of productivity apps including an **AI-powered document editor**, terminal, file manager, calendar, and calculator.
+Most operating systems expose users to too many menus, technical terms, hidden consequences, and irreversible actions. Teddy OS takes a different direction: it gives people a clear way forward, explains important changes, and protects their work.
 
-> *The first operating system built in East Africa — for the world.*
+> **Teddy OS should be light enough for an older laptop and clear enough for someone using a computer for the first time.**
 
----
+Teddy is being built in Uganda by **Bryt Ma Tech UG** as a focused desktop system for people who want a calm, friendly, practical computer rather than a crowded collection of services and settings.
 
-## Why Teddy OS?
+## What is working today
 
-| | Windows 11 | Ubuntu | **Teddy OS** |
-|---|---|---|---|
-| **Price** | ~$139 | Free | **Free** |
-| **RAM usage** | 4GB+ | 1GB+ | **512MB+** |
-| **Install size** | 27GB | 8GB | **~2GB** |
-| **Bloatware** | Yes | Some | **Zero** |
-| **AI assistant** | $30/month extra | None | **Built in, free** |
-| **Boot time** | 30-60s | 20-40s | **<10 seconds** |
-| **Old hardware** | No (2018+) | Partial | **Yes (2008+)** |
-| **Built in Uganda** | ❌ | ❌ | **✅** |
+Teddy OS Version 2.1 has a successful automated ISO pipeline. The desktop application builds, the Debian-based root filesystem is created, the root filesystem is packaged safely, and the final BIOS/UEFI ISO is produced by GitHub Actions. The separate quality workflow checks the desktop build, release files, shell syntax, and unwanted external AI-provider references.
 
----
+The current public build is an active foundation rather than a claim that every future feature is complete. Booting and installation should still be validated in QEMU or VirtualBox before using an image on physical hardware.
 
-## Built-in Apps
+## Three ways to use Teddy
 
-| App | Description |
-|-----|-------------|
-| 📝 **Document Editor** | Rich text editor with formatting, PDF export, and AI writing assistance. Replaces Microsoft Word. |
-| ✨ **AI Assistant** | Claude-powered AI built directly into the OS. Write, improve, summarize, brainstorm. |
-| 💻 **Terminal** | Full Linux terminal with 15+ commands, command history, arrow key navigation. |
-| 📁 **File Manager** | Grid and list view, search, open and manage your documents. |
-| 🔢 **Calculator** | Full arithmetic with calculation history and keyboard support. |
-| 📅 **Calendar** | Monthly view with event creation, time-based reminders, and persistence. |
-| ⚙️ **Settings** | Font, autosave, line height, storage management. |
-| 👤 **User Accounts** | Login screen, multiple users, lock screen, avatars. |
-| 🔔 **Notifications** | System-wide notification toasts and notification tray. |
+| Mode | Designed for | Experience |
+|---|---|---|
+| **Simple Mode** | People who want a calm, focused desktop | Common applications, reduced choices, and a friendly starting surface |
+| **Advanced Mode** | Experienced users and developers | Full tools including Terminal, diagnostics, settings, and the complete application set |
+| **Care Mode** | People who need more guidance or accessibility support | Reduced distractions, clearer assistance, larger guided surfaces, and a foundation for speech and high-contrast features |
 
----
+Modes can be changed from the mode center, and the selected mode is remembered for the local user.
 
-## Screenshots
+## Built around protection
 
-> *Coming soon — boot Teddy OS on your laptop and send us a photo!*
+Teddy OS is not designed to give an assistant unrestricted control of the computer. Its safety direction is deterministic first: the system should preview changes, request confirmation, keep recovery options, and explain what happened.
 
----
+Version 2.1 includes a **Teddy Guardian** foundation in Settings. Users can export their saved documents to a JSON backup and restore them after validation and confirmation. The project roadmap expands this into version history, checksums, restore points, safe updates, and rollback.
 
-## Quick Start
+New local users are stored using salted PBKDF2 password hashing in the desktop layer, with migration support for older local records. The native-shell roadmap will move security-sensitive operations into a properly controlled host layer.
 
-### Download and install (easiest)
+## Offline by design
 
-1. Go to [**Releases**](https://github.com/YOUR_USERNAME/teddy-os/releases/latest)
-2. Download `teddyos-1.0.0-x86_64.iso`
-3. Flash to USB with [balenaEtcher](https://etcher.balena.io)
-4. Boot your laptop from the USB
-5. Teddy OS loads automatically
+Teddy OS does not require an external AI service to boot or perform its core tasks. Teddy Help and editor text transformations run locally. Search, settings guidance, diagnostics, backups, and recovery are intended to remain useful without a network connection or GPU.
 
-### Install permanently to your hard drive
+An optional local intelligence module may be added later for selected tasks such as explaining an error or summarizing selected text. It will not be permitted to delete files, partition disks, install packages, change passwords, or modify security settings without deterministic checks and explicit confirmation.
 
-Once booted from USB, open the terminal and run:
-```bash
-sudo bash /opt/teddy-os/install.sh
+## Included applications
+
+| Application | Purpose |
+|---|---|
+| **Document Editor** | Write, format, autosave, print, and export documents |
+| **Teddy Help** | Offline guidance and local explanations without an external provider |
+| **File Manager** | Browse and manage the local document workspace |
+| **Terminal** | Access practical Linux commands in Advanced Mode |
+| **Calculator** | Perform calculations with keyboard support and history |
+| **Calendar** | View months, add events, and manage reminders |
+| **Settings** | Configure the desktop, accessibility preferences, storage, backup, and restore |
+| **User accounts** | First-run setup, multiple users, lock screen, avatars, and logout |
+| **Notifications** | Receive system messages through the notification tray |
+
+## Why the build has three ISO stages
+
+The ISO pipeline is intentionally separated into three jobs:
+
+```text
+Desktop source
+    ↓
+Build Teddy OS Desktop App
+    ↓  teddy-os-desktop-build artifact
+Build Teddy OS Rootfs
+    ↓  teddy-os-rootfs artifact
+Build Teddy OS ISO
+    ↓
+Downloadable BIOS/UEFI ISO
 ```
 
-Full guide: [iso-builder/README.md](iso-builder/README.md)
+The desktop job compiles the user interface. The rootfs job creates the Linux filesystem and installs the desktop into it. The ISO job compresses the filesystem and creates the bootable image. A separate **Teddy OS Quality Checks** workflow verifies source quality without waiting for a complete ISO build.
 
----
+This structure made it possible to fix the earlier six-hour packaging timeout and identify failures by responsibility instead of hiding every operation inside one long job.
+
+## Lightweight direction
+
+Teddy OS currently uses a Debian base with Openbox, LightDM, and a desktop application. The project is lightweight-oriented, but the current Electron compatibility shell means the runtime should not yet be described as ultra-lightweight. The main architectural objective for the next release is to replace Electron with a carefully scoped native shell while preserving the tested interface.
+
+Lightweight performance will be measured rather than guessed. The repository includes scripts for recording memory, storage, uptime, processes, service timing, ISO size, and checksums. Each release should publish measured results for a defined test machine.
+
+## Download and test
+
+The latest ISO is produced as a GitHub Actions artifact. Open the [Actions page](https://github.com/muhumuza684/teddy-os/actions), select a successful **Build Teddy OS ISO** run, and download the `teddy-os-iso` artifact.
+
+Test in a virtual machine first. Recommended starting resources are 4 GB RAM, 2 virtual CPUs, and a 32 GB virtual disk. Test booting, login, all three modes, networking, document backup and restore, shutdown, restart, and installation to the virtual disk. Do not install on a physical disk until the virtual-disk test is successful and important data is backed up.
 
 ## Build from source
 
+### Desktop application
+
 ```bash
-# 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/teddy-os.git
-cd teddy-os
-
-# 2. Build the desktop app
-cd desktop && npm install && npm run build && cd ..
-
-# 3. Build the ISO (on Ubuntu 22.04+)
-cd iso-builder && sudo bash build.sh
-
-# OR — let GitHub build it for you (free):
-# Push to main branch → GitHub Actions builds the ISO automatically
+git clone https://github.com/muhumuza684/teddy-os.git
+cd teddy-os/desktop
+npm install
+npm run build
 ```
 
-### Build with GitHub Actions (no Ubuntu needed)
+### ISO on Ubuntu
 
-1. Fork this repo
-2. Go to **Actions** tab → **Build Teddy OS ISO** → **Run workflow**
-3. Wait ~25 minutes
-4. Download the ISO from the workflow artifacts
+```bash
+cd ..
+cd iso-builder
+sudo bash build.sh
+```
 
----
+The ISO builder requires a Linux environment with root privileges and the tools documented in [`iso-builder/README.md`](iso-builder/README.md).
 
-## Hardware requirements
+### GitHub Actions
 
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| CPU | x86_64 dual-core (2008+) | 2GHz+ quad-core |
-| RAM | 1GB | 4GB+ |
-| Storage | 8GB | 20GB+ SSD |
-| USB drive | 2GB | 4GB+ |
-
----
-
-## Default login
-
-| Username | Password |
-|----------|----------|
-| `teddy` | `teddy` |
-
-Change immediately after install: `passwd`
-
----
+Push to `main`, or run the workflows manually from the repository’s **Actions** tab. The ISO workflow builds the application, creates the root filesystem, and creates the ISO. The quality workflow runs the faster source and desktop checks.
 
 ## Project structure
 
-```
+```text
 teddy-os/
 ├── .github/workflows/
-│   └── build-iso.yml     ← GitHub Actions — auto-builds ISO
+│   ├── build-iso.yml              # Desktop → rootfs → ISO pipeline
+│   └── quality.yml                # Fast build and source-quality checks
 ├── desktop/
 │   ├── src/
-│   │   ├── App.jsx        ← Main OS shell
-│   │   ├── apps/          ← Editor, AI, Calc, Calendar, Terminal, Files, Settings
-│   │   ├── components/    ← Window, Auth, Notifications
-│   │   ├── hooks/         ← useWindowManager
-│   │   └── utils/         ← IndexedDB helpers
-│   ├── electron/          ← Desktop app wrapper
-│   ├── public/            ← HTML + PWA manifest
+│   │   ├── App.jsx                # Main desktop shell and mode routing
+│   │   ├── apps/                  # Editor, Help, Files, Settings, and tools
+│   │   ├── components/            # Windows, authentication, modes, notifications
+│   │   └── utils/                 # Local persistence helpers
+│   ├── electron/                  # Current compatibility host
 │   └── package.json
 ├── iso-builder/
-│   ├── build.sh           ← Builds the bootable ISO
-│   ├── install.sh         ← Installs to hard drive
+│   ├── build-rootfs.sh            # Debian rootfs construction
+│   ├── build-image.sh             # Bootable ISO construction
+│   ├── install.sh                 # Installation workflow
 │   └── README.md
-└── README.md              ← This file
+├── native-shell/
+│   └── README.md                  # Native-shell migration contract
+├── tools/
+│   ├── measure-teddy-system.sh    # Runtime measurement snapshot
+│   └── verify-iso.sh               # ISO size, checksum, and metadata checks
+├── docs/
+│   └── TEDDY-V2.1-IMPLEMENTATION.md
+└── README.md
 ```
-
----
 
 ## Roadmap
 
-- [x] Bootable ISO (BIOS + UEFI)
-- [x] Hard drive installer
-- [x] AI-powered document editor
-- [x] Terminal, Calculator, Calendar, File Manager
-- [x] User login + lock screen
-- [x] Notifications
-- [x] GitHub Actions auto-build
-- [ ] `.docx` file support (full Word replacement)
-- [ ] Built-in web browser
-- [ ] App store
-- [ ] Luganda + Swahili language support
-- [ ] ARM / Raspberry Pi build
-- [ ] OEM installer for schools
+### Version 2.1 foundation
 
----
+- [x] Three user modes: Simple, Advanced, and Care
+- [x] Offline Teddy Help and local editor assistance
+- [x] Document backup and restore foundation
+- [x] Salted password hashing for newly created users
+- [x] Safer rootfs packaging and successful ISO pipeline
+- [x] Separate quality workflow and source checks
+- [x] Bryt Ma Tech UG branding across the desktop and release metadata
+- [x] Performance and ISO measurement tools
+- [ ] QEMU boot test in CI
+- [ ] Full VirtualBox/QEMU installation validation report
+
+### Version 2.2 direction
+
+- [ ] Complete Care Mode with text scaling, high contrast, keyboard navigation, captions, and optional speech
+- [ ] Task-oriented Simple Mode flows for Wi-Fi, files, photos, updates, and recovery
+- [ ] Teddy Guardian version history, checksums, restore points, and undo
+- [ ] Native GTK4/Rust shell prototype
+- [ ] Safe update preview and rollback implementation
+- [ ] Base-image package reduction with published RAM and boot measurements
+- [ ] Optional CPU-only local intelligence module with strict permissions
+- [ ] Hardware compatibility matrix and signed release checksums
 
 ## Contributing
 
-Pull requests welcome. Open an issue first to discuss what you'd like to change.
-
----
+Contributions are welcome. Please open an issue before a large change so the design, accessibility impact, security implications, and resource cost can be discussed. New features should work without external AI, avoid unnecessary background services, preserve recovery paths, and include a test or measurement where appropriate.
 
 ## License
 
-MIT © 2025 [Bryt Ma Tech Uganda](https://github.com/YOUR_USERNAME)
-
----
+Teddy OS is released under the MIT License. See [`LICENSE`](LICENSE).
 
 <div align="center">
-  <strong>🐻 Teddy OS — Built with ❤️ in Uganda</strong><br/>
-  <sub>Bryt Ma Tech Uganda · Kampala, Uganda 🇺🇬</sub>
+
+**Teddy OS — simple by design, protective by default**  
+**Built by Bryt Ma Tech UG · Uganda**
+
 </div>
