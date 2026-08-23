@@ -3,6 +3,15 @@ import { dbGet, dbPut, dbAll } from '../utils/db';
 
 const AuthContext = createContext(null);
 
+const encoder = new TextEncoder();
+async function hashPassword(password, salt) {
+  if (!window.crypto?.subtle) throw new Error('Secure password storage is unavailable in this environment.');
+  const key = await window.crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await window.crypto.subtle.deriveBits({ name: 'PBKDF2', salt: encoder.encode(salt), iterations: 120000, hash: 'SHA-256' }, key, 256);
+  return Array.from(new Uint8Array(bits), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+function newSalt() { return Array.from(window.crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join(''); }
+
 export function AuthProvider({ children }) {
   const [stage, setStage] = useState('loading');
   const [currentUser, setCurrentUser] = useState(null);
@@ -28,7 +37,8 @@ export function AuthProvider({ children }) {
     if (!username.trim() || !password.trim()) return { error: 'Username and password required' };
     const existing = await dbGet('users', username).catch(() => null);
     if (existing) return { error: 'Username already taken' };
-    const user = { username, password: btoa(password), avatar, created: Date.now(), role: users.length === 0 ? 'admin' : 'user' };
+    const salt = newSalt();
+    const user = { username, passwordHash: await hashPassword(password, salt), salt, avatar, created: Date.now(), role: users.length === 0 ? 'admin' : 'user' };
     await dbPut('users', user);
     setUsers(prev => [...prev, user]);
     return { success: true };
@@ -37,7 +47,15 @@ export function AuthProvider({ children }) {
   async function login(username, password) {
     const user = await dbGet('users', username).catch(() => null);
     if (!user) return { error: 'User not found' };
-    if (atob(user.password) !== password) return { error: 'Incorrect password' };
+    try {
+      if (user.passwordHash && user.salt) {
+        if (await hashPassword(password, user.salt) !== user.passwordHash) return { error: 'Incorrect password' };
+      } else if (user.password && atob(user.password) === password) {
+        const salt = newSalt();
+        user.salt = salt; user.passwordHash = await hashPassword(password, salt); delete user.password;
+        await dbPut('users', user);
+      } else return { error: 'Incorrect password' };
+    } catch { return { error: 'Secure login is unavailable in this environment' }; }
     setCurrentUser(user);
     localStorage.setItem('teddy_user', username);
     setStage('desktop');
@@ -46,8 +64,14 @@ export function AuthProvider({ children }) {
 
   function logout() { localStorage.removeItem('teddy_user'); setCurrentUser(null); setStage('login'); }
   function lock() { setStage('locked'); }
-  function unlock(password) {
-    if (currentUser && atob(currentUser.password) === password) { setStage('desktop'); return true; }
+  async function unlock(password) {
+    if (!currentUser) return false;
+    try {
+      const valid = currentUser.passwordHash && currentUser.salt
+        ? await hashPassword(password, currentUser.salt) === currentUser.passwordHash
+        : currentUser.password && atob(currentUser.password) === password;
+      if (valid) { setStage('desktop'); return true; }
+    } catch {}
     return false;
   }
 
@@ -217,7 +241,7 @@ function LockScreen({ user, unlock, logout }) {
   const [error, setError] = useState('');
   const [time, setTime] = useState(new Date());
   React.useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
-  function doUnlock() { if (!unlock(password)) { setError('Incorrect password'); setPassword(''); } }
+  async function doUnlock() { if (!(await unlock(password))) { setError('Incorrect password'); setPassword(''); } }
 
   return (
     <div style={{ ...FULL, backdropFilter: 'blur(20px)' }}>

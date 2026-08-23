@@ -1,7 +1,7 @@
 {
   "name": "teddy-os",
-  "version": "2.0.0",
-  "description": "Teddy OS v2 — Built by Bryt Ma Tech UG",
+  "version": "2.1.0",
+  "description": "Teddy OS v2.1 — Built by Bryt Ma Tech UG",
   "main": "electron/main.js",
   "homepage": "./",
   "author": { "name": "Bryt Ma Tech UG", "email": "hello@brytmatech.ug" },
@@ -9,6 +9,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "test:build": "npm run build",
     "electron:dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:build:win": "npm run build && electron-builder --win",
     "electron:build:mac": "npm run build && electron-builder --mac",

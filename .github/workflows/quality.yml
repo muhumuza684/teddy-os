@@ -1,0 +1,54 @@
+name: Teddy OS Quality Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: Desktop and builder quality
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Build desktop
+        working-directory: desktop
+        run: npm run build
+        env:
+          CI: false
+
+      - name: Verify desktop output
+        run: |
+          test -f desktop/build/index.html
+          test -d desktop/build/static
+
+      - name: Reject external AI provider references
+        run: |
+          if grep -RIn --exclude-dir=node_modules --exclude-dir=build -Ei 'anthropic|claude' desktop/src; then
+            echo 'Forbidden external AI provider reference found.'
+            exit 1
+          fi
+
+      - name: Validate shell scripts
+        run: |
+          bash -n iso-builder/build-rootfs.sh
+          bash -n iso-builder/build-image.sh
+          bash -n iso-builder/build.sh
+          bash -n tools/measure-teddy-system.sh
+          bash -n tools/verify-iso.sh
