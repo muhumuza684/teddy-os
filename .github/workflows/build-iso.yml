@@ -7,6 +7,7 @@ jobs:
   build-desktop:
     name: Build Teddy OS Desktop App
     runs-on: ubuntu-22.04
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,6 +33,7 @@ jobs:
   build-rootfs:
     name: Build Teddy OS Rootfs
     runs-on: ubuntu-22.04
+    timeout-minutes: 330
     needs: build-desktop
     steps:
       - name: Checkout code
@@ -41,6 +43,11 @@ jobs:
         with:
           name: teddy-os-desktop-build
           path: desktop/build/
+      - name: Verify desktop artifact
+        run: |
+          test -f desktop/build/index.html
+          test -d desktop/build/static
+          du -sh desktop/build
       - name: Install rootfs build tools
         run: |
           sudo apt-get update -qq
@@ -59,6 +66,7 @@ jobs:
   build-image:
     name: Build Teddy OS ISO
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
     needs: build-rootfs
     steps:
       - name: Checkout code

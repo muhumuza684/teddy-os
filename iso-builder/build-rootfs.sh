@@ -834,8 +834,8 @@ ok "Chroot configuration complete"
 step "Installing Teddy OS desktop application"
 mkdir -p "$ROOTFS/opt/teddy-os"
 
-if [ -d "./desktop/build" ]; then
-    cp -r ./desktop/build/* "$ROOTFS/opt/teddy-os/"
+if [ -f "./desktop/build/index.html" ]; then
+    rsync -a --delete ./desktop/build/ "$ROOTFS/opt/teddy-os/"
     ok "Teddy OS web build installed from ./desktop/build"
 elif [ -d "./teddy-os/build" ]; then
     cp -r ./teddy-os/build/* "$ROOTFS/opt/teddy-os/"
@@ -849,5 +849,13 @@ fi
 # --- Package rootfs and iso staging dir for handoff ---
 step "Packaging rootfs and iso staging directory"
 mkdir -p "$(pwd)/artifact"
-tar -C "$WORK" -cf - rootfs iso | zstd -T0 -3 -o "$(pwd)/artifact/teddy-work.tar.zst"
+# Never archive live pseudo-filesystem mounts.
+cleanup_mounts
+if findmnt -R "$ROOTFS" 2>/dev/null | grep -q "$ROOTFS"; then
+    findmnt -R "$ROOTFS"
+    fail "Mounted filesystems remain under rootfs; refusing to archive"
+fi
+
+tar -C "$WORK" --numeric-owner --exclude='rootfs/dev/*' --exclude='rootfs/proc/*' --exclude='rootfs/sys/*' --exclude='rootfs/run/*' -cf - rootfs iso | zstd -T0 -3 -o "$(pwd)/artifact/teddy-work.tar.zst"
+test -s "$(pwd)/artifact/teddy-work.tar.zst"
 ok "Packaged: $(du -sh "$(pwd)/artifact/teddy-work.tar.zst" | cut -f1)"
