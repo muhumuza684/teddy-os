@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "FAKE-PKEXEC $*"; echo "Setting up pkg" >&2; exit ${FAKE_RC:-0}

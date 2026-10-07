@@ -31,7 +31,7 @@ echo -e "${N}"
 echo -e "  ${C}Teddy OS Installer v1.0${N}"
 echo -e "  ${Y}Built by Bryt Ma Tech Uganda${N}"
 echo ""
-echo -e "  ${R}${B}WARNING: This will erase the selected disk completely!${N}"
+echo -e "  ${R}${B}WARNING: the default option erases the selected disk completely!${N}"
 echo ""
 
 # â”€â”€ Select disk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -45,16 +45,32 @@ DISK="/dev/$RAW_DISK"
 [[ ! -b "$DISK" ]] && fail "Disk $DISK not found. Check spelling."
 
 DISK_SIZE=$(lsblk -d -o SIZE "$DISK" | tail -1 | tr -d ' ')
-echo ""
-warn "TARGET DISK : $DISK ($DISK_SIZE)"
-warn "ALL DATA WILL BE PERMANENTLY ERASED"
-echo ""
-read -rp "  Type ERASE to confirm: " CONFIRM
-[[ "$CONFIRM" != "ERASE" ]] && { echo "Aborted."; exit 0; }
+
+# Install mode: erase the disk, or (UEFI only) keep Windows and share the disk.
+INSTALL_MODE="erase"
+EFI_DIR="${TEDDY_EFI_DIR:-/sys/firmware/efi}"   # override only used by tests
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -d "$EFI_DIR" ] && [ -f "$SCRIPT_DIR/lib/alongside.sh" ]; then
+    echo ""
+    echo "  How do you want to install?"
+    echo "    1) Erase the whole disk (Teddy OS only)"
+    echo "    2) Install alongside Windows (keeps Windows and your files)"
+    read -rp "  Choose 1 or 2 [1]: " MODE_CHOICE
+    [ "${MODE_CHOICE:-1}" = "2" ] && INSTALL_MODE="alongside"
+fi
+
+if [ "$INSTALL_MODE" = "erase" ]; then
+    echo ""
+    warn "TARGET DISK : $DISK ($DISK_SIZE)"
+    warn "ALL DATA WILL BE PERMANENTLY ERASED"
+    echo ""
+    read -rp "  Type ERASE to confirm: " CONFIRM
+    [[ "$CONFIRM" != "ERASE" ]] && { echo "Aborted."; exit 0; }
+fi
 
 # â”€â”€ UEFI or BIOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Detecting boot mode"
-if [ -d /sys/firmware/efi ]; then
+if [ -d "$EFI_DIR" ]; then
     MODE="uefi"
     ok "UEFI mode detected"
 else
@@ -64,14 +80,28 @@ fi
 
 # â”€â”€ Partition naming helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 part() {
-    if [[ "$DISK" == *"nvme"* ]] || [[ "$DISK" == *"mmcblk"* ]]; then
-        echo "${DISK}p${1}"
-    else
-        echo "${DISK}${1}"
-    fi
+    # Any disk name ending in a digit (nvme0n1, mmcblk0, loop0, md0...) needs a 'p' separator.
+    case "$DISK" in
+        *[0-9]) echo "${DISK}p${1}" ;;
+        *)      echo "${DISK}${1}" ;;
+    esac
 }
 
 # â”€â”€ Partitioning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+SWAP_PART=""
+if [ "$INSTALL_MODE" = "alongside" ]; then
+    step "Installing alongside Windows"
+    # shellcheck source=lib/alongside.sh
+    source "$SCRIPT_DIR/lib/alongside.sh"
+    # shellcheck source=lib/alongside-menu.sh
+    source "$SCRIPT_DIR/lib/alongside-menu.sh"
+    alongside_menu "$DISK" || fail "Alongside install stopped: ${AL_REASON:-cancelled}. Nothing was left changed."
+    EFI_PART="$AL_ESP_PART"                                   # reuse Windows' ESP - never reformat it
+    ROOT_PART="$(al_part_dev "$DISK" "$AL_NEW_LINUX_NUM")"
+    sleep 2; partprobe "$DISK" 2>/dev/null || true; sleep 1
+    [ -b "$ROOT_PART" ] || fail "New partition $ROOT_PART did not appear."
+    ok "Teddy OS partition: $ROOT_PART   (Windows ESP reused: $EFI_PART)"
+else
 step "Partitioning $DISK"
 progress "Wiping existing partition table..."
 wipefs -a "$DISK"
@@ -104,17 +134,20 @@ sleep 2
 partprobe "$DISK" 2>/dev/null || true
 sleep 1
 ok "Partitioned"
+fi
 
 # â”€â”€ Format â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 step "Formatting partitions"
 
-if [ "$MODE" = "uefi" ]; then
+if [ "$MODE" = "uefi" ] && [ "$INSTALL_MODE" = "erase" ]; then
     mkfs.fat -F32 -n "TEDDY_EFI" "$EFI_PART"
     ok "EFI: $EFI_PART (FAT32)"
 fi
 
-mkswap -L "teddy-swap" "$SWAP_PART"
-ok "Swap: $SWAP_PART"
+if [ -n "$SWAP_PART" ]; then
+    mkswap -L "teddy-swap" "$SWAP_PART"
+    ok "Swap: $SWAP_PART"
+fi
 
 mkfs.ext4 -L "teddy-root" -F -m 1 "$ROOT_PART"
 ok "Root: $ROOT_PART (ext4)"
@@ -130,7 +163,7 @@ if [ "$MODE" = "uefi" ]; then
     mount "$EFI_PART" "$MOUNT/boot/efi"
 fi
 
-swapon "$SWAP_PART"
+[ -n "$SWAP_PART" ] && swapon "$SWAP_PART"
 ok "Mounted at $MOUNT"
 
 # â”€â”€ Copy system â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -161,7 +194,8 @@ chmod 1777 "$MOUNT/tmp"
 step "Writing system configuration"
 
 ROOT_UUID=$(blkid -s UUID -o value "$ROOT_PART")
-SWAP_UUID=$(blkid -s UUID -o value "$SWAP_PART")
+SWAP_UUID=""
+[ -n "$SWAP_PART" ] && SWAP_UUID=$(blkid -s UUID -o value "$SWAP_PART")
 
 cat > "$MOUNT/etc/fstab" << FSTAB
 # /etc/fstab â€” Teddy OS
@@ -170,9 +204,16 @@ cat > "$MOUNT/etc/fstab" << FSTAB
 #
 # <device>      <mount>    <type>  <options>           <dump>  <fsck>
 UUID=$ROOT_UUID /          ext4    errors=remount-ro   0       1
-UUID=$SWAP_UUID none       swap    sw                  0       0
 tmpfs           /tmp       tmpfs   defaults,nosuid     0       0
 FSTAB
+
+if [ -n "$SWAP_UUID" ]; then
+    echo "UUID=$SWAP_UUID none       swap    sw                  0       0" >> "$MOUNT/etc/fstab"
+elif [ "$INSTALL_MODE" = "alongside" ]; then
+    # no swap partition when sharing a disk with Windows: use a swap file instead
+    fallocate -l 2G "$MOUNT/swapfile" && chmod 600 "$MOUNT/swapfile" && mkswap "$MOUNT/swapfile" >/dev/null \
+        && echo "/swapfile none swap sw 0 0" >> "$MOUNT/etc/fstab"
+fi
 
 if [ "$MODE" = "uefi" ]; then
     EFI_UUID=$(blkid -s UUID -o value "$EFI_PART")
@@ -213,6 +254,7 @@ GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash\"
 GRUB_CMDLINE_LINUX=\"\"
 GRUB_GFXMODE=\"1920x1080,1366x768,auto\"
 GRUB_GFXPAYLOAD_LINUX=keep
+GRUB_DISABLE_OS_PROBER=false
 GRUB_BACKGROUND=\"/usr/share/backgrounds/teddy-os/default.svg\"
 GRUBDEF
 
@@ -249,7 +291,7 @@ if [ "$MODE" = "uefi" ]; then
     umount "$MOUNT/boot/efi"
 fi
 umount "$MOUNT"
-swapoff "$SWAP_PART"
+[ -n "$SWAP_PART" ] && swapoff "$SWAP_PART" || true
 
 # â”€â”€ Done â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 echo ""

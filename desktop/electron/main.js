@@ -8,7 +8,7 @@ function createWindow() {
     width: 1280, height: 800, minWidth: 900, minHeight: 600,
     title: 'Teddy OS',
     icon: path.join(__dirname, '../public/icons/icon.png'),
-    webPreferences: { nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'preload.js') },
+    webPreferences: { nodeIntegration: false, contextIsolation: true, webviewTag: true, preload: path.join(__dirname, 'preload.js') },
     backgroundColor: '#0f0c1a', show: false,
   });
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
@@ -37,6 +37,7 @@ ipcMain.handle('dialog:saveFile', async (_, content, name='document') => {
   if (!r.canceled && r.filePath) { require('fs').writeFileSync(r.filePath, content, 'utf8'); return r.filePath; }
   return null;
 });
+require('./system-ipc').register(ipcMain);
 ipcMain.handle('os:notify', (_, { title, body }) => {
   if (Notification.isSupported()) new Notification({ title, body }).show();
 });

@@ -48,6 +48,10 @@ jobs:
       - name: Validate shell scripts
         run: |
           bash -n iso-builder/build-rootfs.sh
+          bash -n iso-builder/install.sh
+          bash -n iso-builder/lib/alongside.sh
+          bash -n iso-builder/lib/alongside-menu.sh
+          bash -n tools/test-alongside.sh
           bash -n iso-builder/build-image.sh
           bash -n iso-builder/build.sh
           bash -n tools/measure-teddy-system.sh

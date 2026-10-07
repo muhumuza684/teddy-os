@@ -25,9 +25,9 @@ export const MODE_META = {
 };
 
 export const MODE_APPS = {
-  simple: ['editor', 'files', 'calc', 'settings'],
-  advanced: ['editor', 'files', 'calc', 'calendar', 'terminal', 'ai', 'settings'],
-  care: ['editor', 'files', 'settings'],
+  simple: ['editor', 'files', 'browser', 'calc', 'clock', 'store', 'settings'],
+  advanced: ['editor', 'files', 'browser', 'calc', 'calendar', 'clock', 'terminal', 'ai', 'store', 'settings'],
+  care: ['editor', 'files', 'browser', 'clock', 'settings'], // no Store: reduced distractions
 };
 
 export default function ModeCenter({ mode, onChange, onClose }) {

@@ -173,6 +173,17 @@ apt-get install -y --no-install-recommends \
     xinit \
     xauth
 
+
+# -- Dual-boot / installer tooling (install alongside Windows) --
+echo "Installing dual-boot tools..."
+apt-get install -y --no-install-recommends \
+    os-prober \
+    ntfs-3g \
+    gdisk \
+    parted \
+    dosfstools \
+    mtools
+
 # Ã¢â€â‚¬Ã¢â€â‚¬ GPU drivers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 echo "Installing GPU drivers..."
 apt-get install -y --no-install-recommends \
@@ -843,6 +854,15 @@ elif [ -d "./teddy-os/build" ]; then
 else
     warn "No desktop build found Ã¢â‚¬â€ will prompt user on first boot"
     warn "Before building ISO: cd desktop && npm install && npm run build"
+fi
+
+# Ship the hard-drive installer and its Windows-safety library in the image
+# (the build prints: sudo bash /opt/teddy-os/install.sh)
+if [ -f ./install.sh ]; then
+    install -m 0755 ./install.sh "$ROOTFS/opt/teddy-os/install.sh"
+    mkdir -p "$ROOTFS/opt/teddy-os/lib"
+    install -m 0755 ./lib/*.sh "$ROOTFS/opt/teddy-os/lib/"
+    ok "Installer + lib/ installed to /opt/teddy-os"
 fi
 
 

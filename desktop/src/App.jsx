@@ -10,6 +10,9 @@ import Calendar from './apps/Calendar';
 import Terminal from './apps/Terminal';
 import FileManager from './apps/FileManager';
 import Settings from './apps/Settings';
+import Browser from './apps/Browser';
+import Clock from './apps/Clock';
+import SoftwareCenter from './apps/SoftwareCenter';
 import ModeCenter, { MODE_APPS, MODE_META, CareWelcome, SimpleWelcome } from './components/Modes';
 
 const APP_META = {
@@ -17,12 +20,16 @@ const APP_META = {
   files: { title: 'File Manager', icon: '📁' }, calc: { title: 'Calculator', icon: '🔢' },
   calendar: { title: 'Calendar', icon: '📅' }, terminal: { title: 'Terminal', icon: '💻' },
   settings: { title: 'Settings', icon: '⚙️' },
+  browser: { title: 'Browser', icon: '🌐' }, clock: { title: 'Clock', icon: '⏰' },
+  store: { title: 'Software Center', icon: '🛍️' },
 };
 const TASKBAR_APPS = [
   { id: 'editor', icon: 'ti-file-text', label: 'Editor' }, { id: 'files', icon: 'ti-folder', label: 'Files' },
   { id: 'calc', icon: 'ti-calculator', label: 'Calc' }, { id: 'calendar', icon: 'ti-calendar', label: 'Calendar' },
   { id: 'terminal', icon: 'ti-terminal', label: 'Terminal' }, { id: 'ai', icon: 'ti-robot', label: 'AI' },
   { id: 'settings', icon: 'ti-settings', label: 'Settings' },
+  { id: 'browser', icon: 'ti-world', label: 'Browser' }, { id: 'clock', icon: 'ti-clock', label: 'Clock' },
+  { id: 'store', icon: 'ti-building-store', label: 'Store' },
 ];
 const DEFAULT_SETTINGS = { fontSize: 15, lineHeight: 1.75, spellCheck: true, fontFamily: '-apple-system,sans-serif', autosave: true, autosaveInterval: 30 };
 
@@ -48,6 +55,15 @@ export default function App() {
   useEffect(() => {
     const tick = () => { const n = new Date(); setClock(n.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + n.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })); };
     tick(); const t = setInterval(tick, 1000); return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    // Re-apply saved keyboard/mouse settings (xset resets on every boot).
+    try {
+      const api = window.electronAPI; const raw = localStorage.getItem('teddy:input'); if (!api || !raw) return;
+      const v = JSON.parse(raw);
+      api.setKeyRepeat?.(v.keyDelay, v.keyRate); api.setPointerAccel?.(v.ptrAccel, v.ptrThreshold);
+    } catch { /* ignore corrupt settings */ }
   }, []);
 
   useEffect(() => {
@@ -132,6 +148,9 @@ export default function App() {
             {id === 'calc' && <Calculator />}
             {id === 'calendar' && <Calendar />}
             {id === 'terminal' && <Terminal />}
+            {id === 'browser' && <Browser />}
+            {id === 'clock' && <Clock />}
+            {id === 'store' && <SoftwareCenter />}
             {id === 'files' && <FileManager onOpenDoc={handleOpenDocFromFiles} />}
             {id === 'settings' && <Settings settings={settings} onUpdate={updateSetting} currentUser={currentUser} onLock={lock} onLogout={logout} />}
           </Window>
@@ -148,7 +167,7 @@ export default function App() {
       {mode === 'care' && <CareWelcome onOpenModes={() => setModeCenter(true)} />}
       {modeCenter && <ModeCenter mode={mode} onChange={setUserMode} onClose={() => setModeCenter(false)} />}
       <div style={{ height: 22, background: 'rgba(6,3,14,0.92)', borderTop: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 14px', gap: 12, flexShrink: 0 }}>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>🐻 Teddy OS v2.0 · {MODE_META[mode].label}</span>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>🐻 Teddy OS v2.1 · {MODE_META[mode].label}</span>
         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>·</span>
         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>Built by Bryt Ma Tech UG</span>
         <span style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{Object.keys(windows).length} app{Object.keys(windows).length !== 1 ? 's' : ''} open</span>
