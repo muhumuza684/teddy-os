@@ -1,5 +1,5 @@
 # 🐻 Teddy OS
-### A lightweight Linux operating system — Built by Bryt Ma Tech Uganda
+### A lightweight Linux operating system — Built by Bryt Ma Tech UG
 
 ---
 
@@ -58,7 +58,7 @@ cd iso-builder
 sudo bash build.sh
 ```
 
-Output: `teddyos-1.0.0-x86_64.iso` (~800MB-1.2GB)
+Output: `teddyos-<version>-x86_64.iso` (~800MB-1.2GB)
 
 ---
 
@@ -70,13 +70,13 @@ Output: `teddyos-1.0.0-x86_64.iso` (~800MB-1.2GB)
 lsblk
 
 # Flash it (replace sdX with your USB drive — NOT your hard drive!)
-sudo dd if=teddyos-1.0.0-x86_64.iso of=/dev/sdX bs=4M status=progress
+sudo dd if=teddyos-<version>-x86_64.iso of=/dev/sdX bs=4M status=progress
 sync
 ```
 
 ### Windows
 1. Download **balenaEtcher**: https://etcher.balena.io
-2. Select `teddyos-1.0.0-x86_64.iso`
+2. Select `teddyos-<version>-x86_64.iso`
 3. Select your USB drive
 4. Click Flash
 
@@ -219,7 +219,7 @@ teddyos/
 git init
 git add .
 git commit -m "🐻 Teddy OS v1.0 — Kampala"
-git remote add origin https://github.com/YOUR_USERNAME/teddy-os.git
+git remote add origin https://github.com/muhumuza684/teddy-os.git
 git push -u origin main
 ```
 
@@ -246,4 +246,4 @@ Then create a GitHub Release and attach the `.iso` file so people can download i
 
 ---
 
-**🐻 Teddy OS — Built with ❤️ in Uganda by Bryt Ma Tech Uganda**
+**🐻 Teddy OS — Built with ❤️ in Uganda by Bryt Ma Tech UG**

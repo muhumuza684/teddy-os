@@ -9,7 +9,7 @@
 [![Build Teddy OS ISO](https://github.com/muhumuza684/teddy-os/actions/workflows/build-iso.yml/badge.svg)](https://github.com/muhumuza684/teddy-os/actions/workflows/build-iso.yml)
 [![Teddy OS Quality Checks](https://github.com/muhumuza684/teddy-os/actions/workflows/quality.yml/badge.svg)](https://github.com/muhumuza684/teddy-os/actions/workflows/quality.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.1.0-blueviolet.svg)](https://github.com/muhumuza684/teddy-os/releases)
+[![Version](https://img.shields.io/badge/Version-2.2.0--dev-blueviolet.svg)](https://github.com/muhumuza684/teddy-os/releases)
 [![Made in Uganda](https://img.shields.io/badge/Made%20in-Uganda-yellow.svg)](https://github.com/muhumuza684)
 
 **Teddy OS is designed to make computers easier to understand, safer to use, and lighter on everyday hardware.**
@@ -68,7 +68,10 @@ An optional local intelligence module may be added later for selected tasks such
 | **Terminal** | Access practical Linux commands in Advanced Mode |
 | **Calculator** | Perform calculations with keyboard support and history |
 | **Calendar** | View months, add events, and manage reminders |
-| **Settings** | Configure the desktop, accessibility preferences, storage, backup, and restore |
+| **Browser** | Browse the web inside Teddy (address bar, back/forward, reload) |
+| **Clock** | World clock, alarms with notifications, timer, and stopwatch |
+| **Software Center** | Install common apps (Wine, Docker, GIMP, VLC, Codium, fingerprint support); not shown in Care Mode |
+| **Settings** | Configure the desktop, accessibility preferences, fingerprint login, keyboard and mouse, storage, backup, and restore |
 | **User accounts** | First-run setup, multiple users, lock screen, avatars, and logout |
 | **Notifications** | Receive system messages through the notification tray |
 
@@ -104,6 +107,12 @@ The latest ISO is produced as a GitHub Actions artifact. Open the [Actions page]
 
 Test in a virtual machine first. Recommended starting resources are 4 GB RAM, 2 virtual CPUs, and a 32 GB virtual disk. Test booting, login, all three modes, networking, document backup and restore, shutdown, restart, and installation to the virtual disk. Do not install on a physical disk until the virtual-disk test is successful and important data is backed up.
 
+## Install next to Windows
+
+On UEFI computers the installer offers **Install alongside Windows**. Before it changes anything it checks that the disk is GPT, that Windows is found, that BitLocker is off, that Windows is fully shut down (no hibernation or Fast Startup), that no disk check is pending, and that enough space can be freed. If any check fails it explains why and leaves the disk untouched. If it proceeds, it backs up the partition table, shrinks Windows, creates the Teddy OS partition, reuses the existing EFI partition without formatting it, and restores the original partition table automatically if any step fails. GRUB then lists Windows beside Teddy OS.
+
+This path is tested on scratch disk images, **not yet on real hardware**. Always try it in a UEFI virtual machine first (see `docs/TEDDY-V2.2-SYSTEM-FEATURES.md`) and back up important data.
+
 ## Build from source
 
 ### Desktop application
@@ -123,6 +132,8 @@ cd iso-builder
 sudo bash build.sh
 ```
 
+`build.sh` runs the same two stages as GitHub Actions (`build-rootfs.sh`, then `build-image.sh`). The product version is defined once, in `desktop/package.json`, and flows into the desktop UI, the ISO file name, and the installed `os-release`.
+
 The ISO builder requires a Linux environment with root privileges and the tools documented in [`iso-builder/README.md`](iso-builder/README.md).
 
 ### GitHub Actions
@@ -135,27 +146,34 @@ Push to `main`, or run the workflows manually from the repository’s **Actions*
 teddy-os/
 ├── .github/workflows/
 │   ├── build-iso.yml              # Desktop → rootfs → ISO pipeline
-│   └── quality.yml                # Fast build and source-quality checks
+│   └── quality.yml                # Build, source-quality, consistency, and system tests
 ├── desktop/
 │   ├── src/
 │   │   ├── App.jsx                # Main desktop shell and mode routing
-│   │   ├── apps/                  # Editor, Help, Files, Settings, and tools
+│   │   ├── apps/                  # Editor, Help, Files, Browser, Clock, Store, Settings, and tools
 │   │   ├── components/            # Windows, authentication, modes, notifications
-│   │   └── utils/                 # Local persistence helpers
-│   ├── electron/                  # Current compatibility host
-│   └── package.json
+│   │   └── utils/                 # Local persistence helpers and the product version
+│   ├── electron/                  # Current compatibility host (main, preload, system-ipc)
+│   └── package.json               # The single source of truth for the version
 ├── iso-builder/
+│   ├── build.sh                   # One-command local build (runs the two stages below)
 │   ├── build-rootfs.sh            # Debian rootfs construction
 │   ├── build-image.sh             # Bootable ISO construction
-│   ├── install.sh                 # Installation workflow
+│   ├── install.sh                 # Installer (erase disk, or install alongside Windows)
+│   ├── lib/                       # alongside.sh safety library and its installer menu
 │   └── README.md
 ├── native-shell/
 │   └── README.md                  # Native-shell migration contract
 ├── tools/
 │   ├── measure-teddy-system.sh    # Runtime measurement snapshot
-│   └── verify-iso.sh               # ISO size, checksum, and metadata checks
+│   ├── verify-iso.sh              # ISO size, checksum, and metadata checks
+│   ├── test-alongside.sh          # Disk-safety tests on scratch GPT disks (needs root)
+│   └── check-consistency.sh       # Version, brand, encoding, and app-registration checks
+├── tests/                         # Component, system-bridge, and installer-flow tests
 ├── docs/
-│   └── TEDDY-V2.1-IMPLEMENTATION.md
+│   ├── TEDDY-V2.1-IMPLEMENTATION.md
+│   └── TEDDY-V2.2-SYSTEM-FEATURES.md
+├── LICENSE
 └── README.md
 ```
 
@@ -173,6 +191,15 @@ teddy-os/
 - [x] Performance and ISO measurement tools
 - [ ] QEMU boot test in CI
 - [ ] Full VirtualBox/QEMU installation validation report
+
+### Version 2.2 progress (in development, `2.2.0-dev`)
+
+- [x] Browser, Clock, and Software Center applications
+- [x] Fingerprint enrolment (fprintd) and keyboard/mouse settings that persist across logins
+- [x] Install alongside Windows with safety checks and automatic rollback (tested on scratch disks)
+- [x] One version source, one brand name, and CI consistency checks
+- [ ] Validate install-alongside in a UEFI VM and on real hardware
+- [ ] Facial recognition (no safe, maintained option identified yet)
 
 ### Version 2.2 direction
 

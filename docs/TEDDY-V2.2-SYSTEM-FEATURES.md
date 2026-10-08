@@ -1,4 +1,4 @@
-# Teddy OS - system features added after v2.1
+# Teddy OS - system features in 2.2.0-dev (after v2.1)
 
 Status of each item, and exactly what was and was not verified.
 
@@ -18,7 +18,7 @@ All new system calls are Linux-only and answer "needs Teddy OS" on other platfor
 ## Running the tests (Linux or WSL, root for the disk tests)
 
     sudo apt-get install -y nodejs npm xvfb x11-xserver-utils gdisk ntfs-3g parted dosfstools mtools
-    sudo ./tests/run-all.sh
+    sudo bash tests/run-all.sh
 
 ## Before trusting install-alongside on a real computer
 
@@ -26,3 +26,12 @@ All new system calls are Linux-only and answer "needs Teddy OS" on other platfor
 2. Run the installer, choose "Install alongside Windows", reboot, confirm the GRUB menu lists Teddy OS and Windows, and that both boot.
 3. Repeat with Windows hibernated (Fast Startup on) and confirm the installer refuses and the disk is unchanged.
 4. Only then back up a real machine and try it there.
+
+## Repository conventions (enforced by `tools/check-consistency.sh` in CI)
+
+- **One version.** `desktop/package.json` is the only place a version is written. The desktop UI reads it through `src/utils/version.js`, the ISO scripts read it with `sed`, and the installer reads it from the installed `/etc/teddy-os/release`. The README badge must match.
+- **One brand name.** "Bryt Ma Tech UG" in every product string and document.
+- **Clean files.** UTF-8 without BOM, LF line endings, no garbled characters, no placeholder URLs.
+- **One app registry.** Every app listed in a mode must exist in `APP_META`, the taskbar list, and the render switch in `App.jsx`.
+- **Shell scripts** start with a shebang, use `set -euo pipefail` (libraries that are sourced are exempt), and are syntax-checked in `quality.yml`.
+- **Paths** in build scripts are relative to the repository root, never to the directory the script was started from.

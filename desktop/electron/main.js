@@ -19,13 +19,15 @@ function createWindow() {
 function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { label: 'Teddy OS', submenu: [
-      { label: 'About Teddy OS', click: () => dialog.showMessageBox(mainWindow, { title: 'Teddy OS', message: 'Teddy OS v1.0\nBuilt by Bryt Ma Tech Uganda\n🐻', buttons: ['OK'] }) },
+      { label: 'About Teddy OS', click: () => dialog.showMessageBox(mainWindow, { title: 'Teddy OS', message: `Teddy OS v${app.getVersion()}
+Built by Bryt Ma Tech UG
+🐻`, buttons: ['OK'] }) },
       { type: 'separator' },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() },
     ]},
     { label: 'Edit', submenu: [{ role: 'undo' },{ role: 'redo' },{ type: 'separator' },{ role: 'cut' },{ role: 'copy' },{ role: 'paste' },{ role: 'selectAll' }] },
     { label: 'View', submenu: [{ role: 'reload' },{ type: 'separator' },{ role: 'togglefullscreen' },{ role: 'zoomIn' },{ role: 'zoomOut' },{ role: 'resetZoom' }] },
-    { label: 'Help', submenu: [{ label: 'GitHub', click: () => shell.openExternal('https://github.com/YOUR_USERNAME/teddy-os') }] },
+    { label: 'Help', submenu: [{ label: 'GitHub', click: () => shell.openExternal('https://github.com/muhumuza684/teddy-os') }] },
   ]));
 }
 

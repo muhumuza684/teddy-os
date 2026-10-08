@@ -1,15 +1,19 @@
 #!/bin/bash
 # =================================================================
-#  TEDDY OS Ã¢â‚¬â€ ISO Build System v1.0
-#  Built by Bryt Ma Tech Uganda
+#  TEDDY OS — ISO Build System
+#  Built by Bryt Ma Tech UG
 #
 #  Run on Ubuntu 22.04 or 24.04 (x86_64) with sudo
-#  Output: teddyos-1.0.0-x86_64.iso
+#  Output: teddyos-<version>-x86_64.iso
 # =================================================================
 set -euo pipefail
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Config Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-TEDDY_VERSION="1.0.0"
+# ── Config ────────────────────────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Single source of truth for the product version: desktop/package.json
+TEDDY_VERSION="$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' "$REPO_ROOT/desktop/package.json" | head -n 1)"
+[[ -n "$TEDDY_VERSION" ]] || { echo "Cannot read the version from desktop/package.json" >&2; exit 1; }
 TEDDY_CODENAME="Kampala"
 TEDDY_ARCH="amd64"
 DEBIAN_SUITE="bookworm"
@@ -20,15 +24,15 @@ ROOTFS="$WORK/rootfs"
 ISO="$WORK/iso"
 OUTPUT="$(pwd)/teddyos-${TEDDY_VERSION}-x86_64.iso"
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── Colors ────────────────────────────────────────────────────
 R='\033[0;31m' G='\033[0;32m' Y='\033[1;33m'
 C='\033[0;36m' B='\033[1m' N='\033[0m'
 
-step()    { echo -e "\n${B}${C}Ã¢â€ÂÃ¢â€ÂÃ¢â€Â $1 ${N}"; }
-ok()      { echo -e "  ${G}Ã¢Å“â€œ${N} $1"; }
-warn()    { echo -e "  ${Y}Ã¢Å¡Â ${N}  $1"; }
-fail()    { echo -e "  ${R}Ã¢Å“â€”${N} $1"; exit 1; }
-progress(){ echo -e "  ${C}Ã¢â€ â€™${N} $1"; }
+step()    { echo -e "\n${B}${C}━━━ $1 ${N}"; }
+ok()      { echo -e "  ${G}✓${N} $1"; }
+warn()    { echo -e "  ${Y}âš ${N}  $1"; }
+fail()    { echo -e "  ${R}✗${N} $1"; exit 1; }
+progress(){ echo -e "  ${C}→${N} $1"; }
 
 # --- Restore rootfs and iso staging dir from previous job ---
 step "Extracting rootfs and iso staging directory"
@@ -36,7 +40,7 @@ mkdir -p "$WORK"
 tar -C "$WORK" --use-compress-program=unzstd -xf "$(pwd)/artifact/teddy-work.tar.zst"
 ok "Restored work directory"
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Squash filesystem Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── Squash filesystem ─────────────────────────────────────────
 step "Compressing filesystem (5-15 min)"
 df -h
 progress "Creating squashfs with xz compression..."
@@ -48,7 +52,7 @@ mksquashfs "$ROOTFS" "$ISO/live/filesystem.squashfs" \
     -e boot 2>/dev/null
 ok "Filesystem compressed: $(du -sh "$ISO/live/filesystem.squashfs" | cut -f1)"
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Kernel + initrd Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── Kernel + initrd ───────────────────────────────────────────
 step "Copying kernel and initramfs"
 KERNEL=$(ls "$ROOTFS/boot/vmlinuz-"* | head -1)
 INITRD=$(ls "$ROOTFS/boot/initrd.img-"* | head -1)
@@ -57,12 +61,12 @@ cp "$INITRD" "$ISO/live/initrd.img"
 ok "Kernel: $(basename "$KERNEL")"
 ok "Initrd: $(basename "$INITRD")"
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ GRUB config Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── GRUB config ───────────────────────────────────────────────
 step "Writing bootloader configuration"
 
 cat > "$ISO/boot/grub/grub.cfg" << GRUBCFG
-# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Teddy OS GRUB Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-# Built by Bryt Ma Tech Uganda
+# ─── Teddy OS GRUB ──────────────────────────────────────────
+# Built by Bryt Ma Tech UG
 
 set default=0
 set timeout=6
@@ -80,7 +84,7 @@ terminal_output gfxterm
 set color_normal=light-gray/black
 set color_highlight=white/purple
 
-menuentry "Ã°Å¸ÂÂ»  Boot Teddy OS ${TEDDY_VERSION}" --class teddy-os {
+menuentry "🐻  Boot Teddy OS ${TEDDY_VERSION}" --class teddy-os {
     linux  /live/vmlinuz \\
         boot=live \\
         quiet \\
@@ -95,7 +99,7 @@ menuentry "Ã°Å¸ÂÂ»  Boot Teddy OS ${TEDDY_VERSION}" --class teddy-os {
     initrd /live/initrd.img
 }
 
-menuentry "Ã°Å¸â€Â§  Boot Teddy OS Ã¢â‚¬â€ Safe mode" --class teddy-os {
+menuentry "🔧  Boot Teddy OS — Safe mode" --class teddy-os {
     linux  /live/vmlinuz \\
         boot=live \\
         nomodeset \\
@@ -106,7 +110,7 @@ menuentry "Ã°Å¸â€Â§  Boot Teddy OS Ã¢â‚¬â€ Safe mode" --cl
     initrd /live/initrd.img
 }
 
-menuentry "Ã°Å¸â€™Â¿  Install Teddy OS to hard drive" --class install {
+menuentry "💿  Install Teddy OS to hard drive" --class install {
     linux  /live/vmlinuz \\
         boot=live \\
         components \\
@@ -116,12 +120,12 @@ menuentry "Ã°Å¸â€™Â¿  Install Teddy OS to hard drive" --class install
     initrd /live/initrd.img
 }
 
-menuentry "Ã°Å¸â€“Â¥  Boot from hard drive" --class harddisk {
+menuentry "🖥  Boot from hard drive" --class harddisk {
     set root=(hd0)
     chainloader +1
 }
 
-menuentry "Ã°Å¸Â§Âª  Memory test (memtest86+)" --class memtest {
+menuentry "🧪  Memory test (memtest86+)" --class memtest {
     linux /live/memtest
 }
 GRUBCFG
@@ -156,7 +160,7 @@ GRUB_FONTS="/usr/share/grub"
 
 ok "Bootloader configured (BIOS + UEFI)"
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Build ISO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── Build ISO ─────────────────────────────────────────────────
 step "Building ISO image"
 progress "Running xorriso..."
 
@@ -164,8 +168,8 @@ xorriso -as mkisofs \
     -iso-level 3 \
     -full-iso9660-filenames \
     -volid "TEDDYOS_10" \
-    -appid "Teddy OS ${TEDDY_VERSION} Ã¢â‚¬â€ Bryt Ma Tech Uganda" \
-    -publisher "Bryt Ma Tech Uganda" \
+    -appid "Teddy OS ${TEDDY_VERSION} — Bryt Ma Tech UG" \
+    -publisher "Bryt Ma Tech UG" \
     -preparer "Teddy OS Build System" \
     -eltorito-boot boot/grub/core.img \
     -no-emul-boot \
@@ -184,40 +188,40 @@ xorriso -as mkisofs \
 
 ok "ISO built: $(du -sh "$OUTPUT" | cut -f1)"
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Done Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ── Done ──────────────────────────────────────────────────────
 echo ""
 echo -e "${B}${G}"
-echo "  Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â"
-echo "  Ã°Å¸ÂÂ»  TEDDY OS ISO READY"
-echo "  Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â"
+echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  🐻  TEDDY OS ISO READY"
+echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo -e "${N}"
 echo "  File : $OUTPUT"
 echo "  Size : $(du -sh "$OUTPUT" | cut -f1)"
 echo "  Built: $(date)"
 echo ""
-echo "  Ã¢â€â‚¬Ã¢â€â‚¬ Flash to USB Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬"
+echo "  ── Flash to USB ──────────────────────────────"
 echo "  Linux/Mac:"
 echo "    sudo dd if=$OUTPUT of=/dev/sdX bs=4M status=progress"
 echo ""
-echo "  Windows: Use balenaEtcher Ã¢â‚¬â€ https://etcher.balena.io"
+echo "  Windows: Use balenaEtcher — https://etcher.balena.io"
 echo ""
-echo "  Ã¢â€â‚¬Ã¢â€â‚¬ Boot your laptop Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬"
-echo "  Insert USB Ã¢â€ â€™ restart Ã¢â€ â€™ press F12 (or F8/F9/Esc)"
+echo "  ── Boot your laptop ──────────────────────────"
+echo "  Insert USB → restart → press F12 (or F8/F9/Esc)"
 echo "  Select USB drive from boot menu"
 echo ""
-echo "  Ã¢â€â‚¬Ã¢â€â‚¬ Install permanently Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬"
+echo "  ── Install permanently ───────────────────────"
 echo "  Once booted: sudo bash /opt/teddy-os/install.sh"
 echo ""
-echo -e "  ${Y}Built by Bryt Ma Tech Uganda${N}"
+echo -e "  ${Y}Built by Bryt Ma Tech UG${N}"
 echo ""
 
 # NOTE: All branding is already embedded in the build script above.
 # Key branding locations:
-# - /etc/os-release          Ã¢â€ â€™ "Teddy OS" identity
-# - /etc/teddy-os/release    Ã¢â€ â€™ Bryt Ma Tech Uganda
-# - GRUB menu                Ã¢â€ â€™ Ã°Å¸ÂÂ» Teddy OS branding
-# - Wallpaper SVG            Ã¢â€ â€™ "Built by Bryt Ma Tech Uganda"
-# - Neofetch MOTD            Ã¢â€ â€™ Shows on every terminal open
-# - ISO publisher field      Ã¢â€ â€™ "Bryt Ma Tech Uganda"
-# - tint2 taskbar            Ã¢â€ â€™ Shows "Teddy OS" bottom bar
-# - LightDM greeter          Ã¢â€ â€™ Custom dark login screen
+# - /etc/os-release          → "Teddy OS" identity
+# - /etc/teddy-os/release    → Bryt Ma Tech UG
+# - GRUB menu                → 🐻 Teddy OS branding
+# - Wallpaper SVG            → "Built by Bryt Ma Tech UG"
+# - Neofetch MOTD            → Shows on every terminal open
+# - ISO publisher field      → "Bryt Ma Tech UG"
+# - tint2 taskbar            → Shows "Teddy OS" bottom bar
+# - LightDM greeter          → Custom dark login screen

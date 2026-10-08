@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
+import fs from 'fs';
+import path from 'path';
 const require = createRequire(import.meta.url);
+// Git on Windows does not keep the executable bit, so set it here instead of relying on it.
+for (const f of fs.readdirSync('fakebin')) fs.chmodSync(path.join('fakebin', f), 0o755);
 const ipc = require('./electron/system-ipc.cjs');
 const handlers = {}; ipc.register({ handle: (n, f) => { handlers[n] = f; } });
 const call = (n, ...a) => handlers[n]({ sender: { send: (c, d) => (call.sent ||= []).push([c, d]) } }, ...a);

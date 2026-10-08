@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { dbAll, dbPut, dbDel } from '../utils/db';
+import { VERSION } from '../utils/version';
 
 const Row = ({ label, sub, children }) => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '0.5px solid var(--border)' }}>
@@ -41,7 +42,7 @@ export default function Settings({ settings, onUpdate, currentUser, onLock, onLo
   async function clearDocs() { if (!window.confirm('Delete ALL documents?')) return; const all = await dbAll('docs'); for (const d of all) await dbDel('docs', d.name); setDocCount(0); }
   async function exportBackup() {
     const docs = await dbAll('docs');
-    const payload = { app: 'Teddy OS', version: '2.1', created: new Date().toISOString(), documents: docs };
+    const payload = { app: 'Teddy OS', version: VERSION, created: new Date().toISOString(), documents: docs };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = `teddy-os-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click();
@@ -68,7 +69,7 @@ export default function Settings({ settings, onUpdate, currentUser, onLock, onLo
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>Teddy OS v2.1 · Built by Bryt Ma Tech UG</div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>Teddy OS v{VERSION} · Built by Bryt Ma Tech UG</div>
       <Section title="Account">
         <Row label={currentUser?.username || 'User'} sub={currentUser?.role === 'admin' ? 'Administrator' : 'Standard user'}>
           <span style={{ fontSize: 20 }}>{currentUser?.avatar}</span>
@@ -101,7 +102,7 @@ export default function Settings({ settings, onUpdate, currentUser, onLock, onLo
         <Row label="Apply" sub={inputMsg || 'Applies to the keyboard and mouse now'}><button onClick={applyInput} style={smallBtn}>Save & apply</button></Row>
       </Section>
       <Section title="About">
-        <Row label="Teddy OS" sub="Version 2.1.0"><span style={{ fontSize: 11 }}>🐻</span></Row>
+        <Row label="Teddy OS" sub={`Version ${VERSION}`}><span style={{ fontSize: 11 }}>🐻</span></Row>
         <Row label="Developer" sub="Built by Bryt Ma Tech UG"><span style={{ fontSize: 11, color: 'var(--accent)' }}>Uganda 🇺🇬</span></Row>
       </Section>
     </div>
