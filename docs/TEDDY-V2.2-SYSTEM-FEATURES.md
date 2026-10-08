@@ -15,7 +15,7 @@ Status of each item, and exactly what was and was not verified.
 Care Mode intentionally has no Software Center (reduced distractions).
 All new system calls are Linux-only and answer "needs Teddy OS" on other platforms.
 
-## Running the tests (Linux or WSL, root for the disk tests)
+## Running the tests (Linux or WSL, root for the disk tests, Node 22 or newer)
 
     sudo apt-get install -y nodejs npm xvfb x11-xserver-utils gdisk ntfs-3g parted dosfstools mtools
     sudo bash tests/run-all.sh

@@ -71,10 +71,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      # vitest 5 and jsdom 30 need Node 22 or newer (the desktop job above stays on Node 20)
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install system tools
         run: |
@@ -84,7 +85,7 @@ jobs:
       - name: Component and system-bridge tests
         working-directory: tests
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           sh sync.sh
           xvfb-run -a npx vitest run
 

@@ -113,6 +113,8 @@ On UEFI computers the installer offers **Install alongside Windows**. Before it 
 
 This path is tested on scratch disk images, **not yet on real hardware**. Always try it in a UEFI virtual machine first (see `docs/TEDDY-V2.2-SYSTEM-FEATURES.md`) and back up important data.
 
+New to the project or starting from a clean machine? Read `docs/DEVELOPMENT.md` (setup, rules, tests, workflow, VM testing, troubleshooting).
+
 ## Build from source
 
 ### Desktop application
@@ -171,6 +173,7 @@ teddy-os/
 │   └── check-consistency.sh       # Version, brand, encoding, and app-registration checks
 ├── tests/                         # Component, system-bridge, and installer-flow tests
 ├── docs/
+│   ├── DEVELOPMENT.md
 │   ├── TEDDY-V2.1-IMPLEMENTATION.md
 │   └── TEDDY-V2.2-SYSTEM-FEATURES.md
 ├── LICENSE

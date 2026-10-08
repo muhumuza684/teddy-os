@@ -4,7 +4,7 @@
 #   sudo bash tests/run-all.sh
 cd "$(dirname "$0")"
 set -e
-[ -d node_modules ] || npm install --no-audit --no-fund
+[ -d node_modules ] || npm ci --no-audit --no-fund
 sh sync.sh
 echo "== 1/4 components + system bridge (vitest) =="; xvfb-run -a npx vitest run
 echo "== 2/4 real Electron <webview> (optional) =="
