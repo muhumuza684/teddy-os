@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { VERSION } from '../utils/version';
 
 const BANNER = [
-  { text: '  🐻 Teddy OS Terminal v2.0', color: '#a855f7' },
+  { text: `  🐻 Teddy OS Terminal v${VERSION}`, color: '#a855f7' },
   { text: '  Built by Bryt Ma Tech UG', color: '#6b6085' },
   { text: '  Type "help" for available commands.', color: '#6b6085' },
   { text: '' },
@@ -41,7 +42,7 @@ export default function Terminal() {
       date: () => print(new Date().toString(), '#4ade80'),
       pwd: () => print('/home/teddy'),
       whoami: () => print('teddy-user', '#4ade80'),
-      uname: () => print('TeddyOS 2.0.0 (Built by Bryt Ma Tech UG)', '#4ade80'),
+      uname: () => print(`TeddyOS ${VERSION} (Built by Bryt Ma Tech UG)`, '#4ade80'),
       uptime: () => print(`up ${Math.floor(performance.now() / 60000)} min`, '#4ade80'),
       history: () => history.forEach((h, i) => print(`  ${i + 1}  ${h}`)),
       ls: () => print('Documents  Projects  Downloads', '#60a5fa'),

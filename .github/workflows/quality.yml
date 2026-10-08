@@ -45,10 +45,52 @@ jobs:
             exit 1
           fi
 
+      - name: Repository consistency (version, brand, encoding, app registry)
+        run: bash tools/check-consistency.sh
+
       - name: Validate shell scripts
         run: |
           bash -n iso-builder/build-rootfs.sh
+          bash -n iso-builder/install.sh
+          bash -n iso-builder/lib/alongside.sh
+          bash -n iso-builder/lib/alongside-menu.sh
+          bash -n tools/test-alongside.sh
           bash -n iso-builder/build-image.sh
           bash -n iso-builder/build.sh
           bash -n tools/measure-teddy-system.sh
           bash -n tools/verify-iso.sh
+          bash -n tools/check-consistency.sh
+
+  system-tests:
+    name: System features (component, bridge, installer, disk safety)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    # Reported but not blocking until it has proven stable on GitHub's runners.
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # vitest 5 and jsdom 30 need Node 22 or newer (the desktop job above stays on Node 20)
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install system tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb x11-xserver-utils gdisk ntfs-3g parted dosfstools mtools
+
+      - name: Component and system-bridge tests
+        working-directory: tests
+        run: |
+          npm ci --no-audit --no-fund
+          sh sync.sh
+          xvfb-run -a npx vitest run
+
+      - name: Disk safety tests (scratch disks)
+        run: sudo bash ./tools/test-alongside.sh
+
+      - name: Installer flow tests (scratch disks)
+        run: sudo bash ./tests/install-flow.sh

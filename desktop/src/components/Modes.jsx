@@ -1,4 +1,5 @@
 import React from 'react';
+import { VERSION } from '../utils/version';
 
 export const MODE_META = {
   simple: {
@@ -6,28 +7,28 @@ export const MODE_META = {
     icon: '🌱',
     color: '#79d89b',
     summary: 'Calm, clear, and focused on everyday tasks.',
-    actions: ['Files', 'Write', 'Internet', 'Photos', 'Settings', 'Help'],
+    actions: ['Files', 'Write', 'Internet', 'Calculator', 'Clock', 'Store', 'Settings'],
   },
   advanced: {
     label: 'Advanced Mode',
     icon: '🛠️',
     color: '#c084fc',
     summary: 'Detailed tools for experienced users and administrators.',
-    actions: ['Editor', 'Files', 'Calculator', 'Calendar', 'Terminal', 'Settings'],
+    actions: ['Editor', 'Files', 'Internet', 'Calculator', 'Calendar', 'Clock', 'Terminal', 'Help', 'Store', 'Settings'],
   },
   care: {
     label: 'Care Mode',
     icon: '🤝',
     color: '#f4c978',
     summary: 'Larger controls, extra guidance, and accessibility support.',
-    actions: ['Files', 'Write', 'Settings', 'Help'],
+    actions: ['Files', 'Write', 'Internet', 'Clock', 'Settings'],
   },
 };
 
 export const MODE_APPS = {
-  simple: ['editor', 'files', 'calc', 'settings'],
-  advanced: ['editor', 'files', 'calc', 'calendar', 'terminal', 'ai', 'settings'],
-  care: ['editor', 'files', 'settings'],
+  simple: ['editor', 'files', 'browser', 'calc', 'clock', 'store', 'settings'],
+  advanced: ['editor', 'files', 'browser', 'calc', 'calendar', 'clock', 'terminal', 'ai', 'store', 'settings'],
+  care: ['editor', 'files', 'browser', 'clock', 'settings'], // no Store: reduced distractions
 };
 
 export default function ModeCenter({ mode, onChange, onClose }) {
@@ -80,7 +81,7 @@ export function SimpleWelcome({ onOpenModes }) {
   return (
     <div className="simple-welcome">
       <div>
-        <div className="eyebrow">Teddy OS v2</div>
+        <div className="eyebrow">Teddy OS v{VERSION}</div>
         <h1>What would you like to do?</h1>
         <p>Simple tools, clear steps, and your files protected.</p>
       </div>

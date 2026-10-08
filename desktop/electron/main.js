@@ -8,7 +8,7 @@ function createWindow() {
     width: 1280, height: 800, minWidth: 900, minHeight: 600,
     title: 'Teddy OS',
     icon: path.join(__dirname, '../public/icons/icon.png'),
-    webPreferences: { nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'preload.js') },
+    webPreferences: { nodeIntegration: false, contextIsolation: true, webviewTag: true, preload: path.join(__dirname, 'preload.js') },
     backgroundColor: '#0f0c1a', show: false,
   });
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
@@ -19,13 +19,15 @@ function createWindow() {
 function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { label: 'Teddy OS', submenu: [
-      { label: 'About Teddy OS', click: () => dialog.showMessageBox(mainWindow, { title: 'Teddy OS', message: 'Teddy OS v1.0\nBuilt by Bryt Ma Tech Uganda\n🐻', buttons: ['OK'] }) },
+      { label: 'About Teddy OS', click: () => dialog.showMessageBox(mainWindow, { title: 'Teddy OS', message: `Teddy OS v${app.getVersion()}
+Built by Bryt Ma Tech UG
+🐻`, buttons: ['OK'] }) },
       { type: 'separator' },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() },
     ]},
     { label: 'Edit', submenu: [{ role: 'undo' },{ role: 'redo' },{ type: 'separator' },{ role: 'cut' },{ role: 'copy' },{ role: 'paste' },{ role: 'selectAll' }] },
     { label: 'View', submenu: [{ role: 'reload' },{ type: 'separator' },{ role: 'togglefullscreen' },{ role: 'zoomIn' },{ role: 'zoomOut' },{ role: 'resetZoom' }] },
-    { label: 'Help', submenu: [{ label: 'GitHub', click: () => shell.openExternal('https://github.com/YOUR_USERNAME/teddy-os') }] },
+    { label: 'Help', submenu: [{ label: 'GitHub', click: () => shell.openExternal('https://github.com/muhumuza684/teddy-os') }] },
   ]));
 }
 
@@ -37,6 +39,7 @@ ipcMain.handle('dialog:saveFile', async (_, content, name='document') => {
   if (!r.canceled && r.filePath) { require('fs').writeFileSync(r.filePath, content, 'utf8'); return r.filePath; }
   return null;
 });
+require('./system-ipc').register(ipcMain);
 ipcMain.handle('os:notify', (_, { title, body }) => {
   if (Notification.isSupported()) new Notification({ title, body }).show();
 });

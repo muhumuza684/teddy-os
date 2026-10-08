@@ -1,0 +1,7 @@
+node_modules/
+src/apps/
+src/components/
+electron/
+electron-webview/node_modules/
+xset.log
+src/utils/version.js
